@@ -62,6 +62,7 @@ flutter:
   assets:
   - images/roomscreen.jpg
   - images/roomA101.jpg
+  - images/roomA102.jpg
   - images/roomC103.jpg
 
   #   - images/a_dot_burr.jpeg
