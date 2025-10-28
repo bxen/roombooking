@@ -17,6 +17,7 @@ class _StaffHomeState extends State<StaffHome> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
+    const StaffHomePage(),
     const StaffAssetList(), // browse room list page
   ];
 
@@ -54,8 +55,8 @@ class _StaffHomeState extends State<StaffHome> {
   }
 }
 
-class StudentHomePage extends StatelessWidget {
-  const StudentHomePage({super.key});
+class StaffHomePage extends StatelessWidget {
+  const StaffHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
