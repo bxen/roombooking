@@ -17,7 +17,6 @@ class _StaffHomeState extends State<StaffHome> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    const StudentHomePage(),
     const StaffAssetList(), // browse room list page
   ];
 
