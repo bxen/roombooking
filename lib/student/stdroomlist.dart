@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roombooking/screens/home_screen.dart';
+import 'package:roombooking/student/stdbooking_page.dart';
 
 class Stdroomlist extends StatefulWidget {
   const Stdroomlist({super.key});
@@ -213,7 +214,24 @@ class _StdroomlistState extends State<Stdroomlist> {
                 Align(
                   alignment: Alignment.bottomRight,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => StdbookingPage(
+                            roomName: roomName,
+                            status: 'free',
+                            imagePath: imagePath,
+                            timeSlots: [
+                              '8:00–10:00',
+                              '10:00–12:00',
+                              '13:00–15:00',
+                              '15:00–17:00',
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       shape: const StadiumBorder(),
