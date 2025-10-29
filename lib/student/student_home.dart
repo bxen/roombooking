@@ -9,10 +9,10 @@ class StudentHome extends StatefulWidget {
   const StudentHome({super.key});
 
   @override
-  State<StudentHome> createState() => _StudentHomeState();
+  State<StudentHome> createState() => StudentHomeState();
 }
 
-class _StudentHomeState extends State<StudentHome> {
+class StudentHomeState extends State<StudentHome> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
@@ -21,6 +21,12 @@ class _StudentHomeState extends State<StudentHome> {
     const StdstatusPage(), // status page
     const StdhistoryPage(), // history page
   ];
+
+  void changeTab(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {

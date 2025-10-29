@@ -204,7 +204,7 @@ import 'package:http/http.dart' as http;
 import 'package:roombooking/config.dart';
 import 'dart:convert';
 
-import 'package:roombooking/lecturer/lecturer_home.dart';
+import 'package:roombooking/lecturer/lecturer_home_dashboard.dart';
 import 'package:roombooking/staff/staff_home.dart';
 import 'package:roombooking/student/student_home.dart';
 
@@ -252,7 +252,7 @@ class _LoginPageState extends State<LoginPage> {
 
         Widget? destination;
         if (_role == 'lecturer') {
-          destination = const LecturerHome();
+          destination = const LecturerHomeDashboard();
         } else if (_role == 'staff') {
           destination = const StaffHome();
         } else if (_role == 'student') {
@@ -275,13 +275,11 @@ class _LoginPageState extends State<LoginPage> {
               ),
               content: Text(
                 'You have successfully logged in',
-               style: GoogleFonts.alice(fontSize: 16),
+                style: GoogleFonts.alice(fontSize: 16),
               ),
               actions: [
                 TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor:Colors.black,
-                  ),
+                  style: TextButton.styleFrom(backgroundColor: Colors.black),
                   onPressed: () {
                     Navigator.of(context).pop(); // ปิด dialog ก่อน
                     Navigator.of(context).pushAndRemoveUntil(

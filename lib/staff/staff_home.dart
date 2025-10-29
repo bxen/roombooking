@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:roombooking/screens/home_screen.dart';
 import 'package:roombooking/staff/staff_addroom.dart';
 import 'package:roombooking/staff/staff_assetlist.dart';
-import 'package:roombooking/staff/staff_addroom.dart';
+import 'package:roombooking/staff/sthistory_page.dart';
 import 'package:roombooking/student/stdroomlist.dart';
 import 'package:roombooking/student/stdstatus_page.dart';
 
@@ -21,6 +21,7 @@ class _StaffHomeState extends State<StaffHome> {
     const StaffHomePage(),
     const StaffAssetList(), // browse room list page
     const StaffAddroom(),
+    const SthistoryPage(),
   ];
 
   void _onItemTapped(int index) {
