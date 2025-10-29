@@ -40,6 +40,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
               ),
               const SizedBox(height: 20),
 
+              // list view
               Expanded(
                 child: ListView(
                   children: [
@@ -119,12 +120,16 @@ class _StaffAssetListState extends State<StaffAssetList> {
     );
   }
 
+  // ✅ แก้ชนิดข้อมูล date → DateTime
   Widget _buildRoomCard({
     required String imagePath,
     required String roomName,
     required DateTime date,
     required List<Map<String, String>> timeSlots,
   }) {
+    // ✅ แปลงวันที่ให้อ่านง่าย
+    String formattedDate = '${date.day}/${date.month}/${date.year}';
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -136,23 +141,18 @@ class _StaffAssetListState extends State<StaffAssetList> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // รูปภาพ
+          // image
           Container(
             width: 100,
             height: 120,
             decoration: BoxDecoration(
               color: Colors.grey[300],
               borderRadius: BorderRadius.circular(10),
-              image: imagePath.isNotEmpty
-                  ? DecorationImage(
-                      image: AssetImage(imagePath),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
+              image: DecorationImage(
+                image: AssetImage(imagePath),
+                fit: BoxFit.cover,
+              ),
             ),
-            child: imagePath.isEmpty
-                ? const Center(child: Icon(Icons.photo, color: Colors.white70))
-                : null,
           ),
           const SizedBox(width: 16),
 
@@ -170,7 +170,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Time Slots ${date.toLocal()}',
+                  'Date: $formattedDate', // ✅ ใช้วันที่ที่ฟอร์แมตแล้ว
                   style: GoogleFonts.alice(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -190,7 +190,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
                       case 'Pending':
                         color = Colors.amber[800]!;
                         break;
-                      case 'Disabled':
+                      case 'Disabled': // ✅ ใช้ Disabled ให้ตรงกัน
                         color = Colors.red;
                         break;
                       default:
@@ -202,6 +202,38 @@ class _StaffAssetListState extends State<StaffAssetList> {
                     );
                   }).toList(),
                 ),
+                const SizedBox(height: 10),
+
+                // buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => _showEditDialog(context, roomName),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[800],
+                        shape: const StadiumBorder(),
+                      ),
+                      child: Text(
+                        'EDIT',
+                        style: GoogleFonts.alice(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () =>
+                          _showDisableDialog(context, roomName, timeSlots),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        shape: const StadiumBorder(),
+                      ),
+                      child: Text(
+                        'Disable',
+                        style: GoogleFonts.alice(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -210,6 +242,254 @@ class _StaffAssetListState extends State<StaffAssetList> {
     );
   }
 
+  // ----------- Edit Popup ----------
+  void _showEditDialog(BuildContext context, String roomName) {
+    TextEditingController nameController = TextEditingController(
+      text: roomName,
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Center(
+            child: Text(
+              'EDIT',
+              style: GoogleFonts.alice(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _dialogButton('Save Name', () {}),
+                  _dialogButton('Save Image', () {}),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _dialogButton('Save', () => Navigator.pop(context)),
+                  _dialogButton('Cancel', () => Navigator.pop(context)),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // ----------- Disable Popup ----------
+  void _showDisableDialog(
+    BuildContext context,
+    String roomName,
+    List<Map<String, String>> timeSlots,
+  ) {
+    List<bool> selected = List.filled(timeSlots.length, false);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Center(
+            child: Text(
+              'Disable this room?',
+              style: GoogleFonts.alice(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'You are disabling $roomName for the following time slots:',
+                    style: GoogleFonts.alice(fontSize: 14),
+                  ),
+                  const SizedBox(height: 10),
+                  Column(
+                    children: List.generate(timeSlots.length, (index) {
+                      final slot = timeSlots[index];
+                      Color color;
+                      switch (slot['status']) {
+                        case 'Free':
+                          color = Colors.green;
+                          break;
+                        case 'Pending':
+                          color = Colors.amber[800]!;
+                          break;
+                        case 'Disabled':
+                          color = Colors.red;
+                          break;
+                        default:
+                          color = Colors.black;
+                      }
+                      return CheckboxListTile(
+                        activeColor: Colors.black,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: Text(
+                          '${slot['time']} ${slot['status']}',
+                          style: GoogleFonts.alice(color: color),
+                        ),
+                        value: selected[index],
+                        onChanged: (val) {
+                          setState(() {
+                            selected[index] = val!;
+                          });
+                        },
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    'When disabled, this room will not be available for booking.',
+                    style: GoogleFonts.alice(fontSize: 12),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          List<String> selectedTimes = [];
+                          for (int i = 0; i < timeSlots.length; i++) {
+                            if (selected[i]) {
+                              selectedTimes.add(timeSlots[i]['time']!);
+                            }
+                          }
+
+                          Navigator.pop(context);
+
+                          if (selectedTimes.isNotEmpty) {
+                            _showSuccessDialog(
+                              context,
+                              roomName,
+                              selectedTimes,
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green[800],
+                          shape: const StadiumBorder(),
+                        ),
+                        child: Text(
+                          'Confirm',
+                          style: GoogleFonts.alice(color: Colors.white),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          shape: const StadiumBorder(),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: GoogleFonts.alice(color: Colors.black),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  // ✅ Popup success
+  void _showSuccessDialog(
+    BuildContext context,
+    String roomName,
+    List<String> selectedTimes,
+  ) {
+    String times = selectedTimes.join(', ');
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Center(
+            child: Icon(Icons.check_circle, color: Colors.green[700], size: 50),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "'$roomName'\nTime: $times\nhas been disabled successfully.",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.alice(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 15),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  shape: const StadiumBorder(),
+                ),
+                child: Text(
+                  'OK',
+                  style: GoogleFonts.alice(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Helper for dialog buttons
+  Widget _dialogButton(String text, VoidCallback onPressed) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.black,
+        shape: const StadiumBorder(),
+      ),
+      child: Text(text, style: GoogleFonts.alice(color: Colors.white)),
+    );
+  }
+
+  // Logout dialog
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
