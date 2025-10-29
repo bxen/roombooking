@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roombooking/screens/home_screen.dart';
+import 'package:roombooking/staff/staff_addroom.dart';
 import 'package:roombooking/staff/staff_assetlist.dart';
-import 'package:roombooking/student/stdhistory_page.dart';
+import 'package:roombooking/staff/staff_addroom.dart';
 import 'package:roombooking/student/stdroomlist.dart';
 import 'package:roombooking/student/stdstatus_page.dart';
 
@@ -19,6 +20,7 @@ class _StaffHomeState extends State<StaffHome> {
   final List<Widget> _pages = [
     const StaffHomePage(),
     const StaffAssetList(), // browse room list page
+    const StaffAddroom(),
   ];
 
   void _onItemTapped(int index) {
