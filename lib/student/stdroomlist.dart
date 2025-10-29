@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roombooking/screens/home_screen.dart';
 import 'package:roombooking/student/stdbooking_page.dart';
+import 'package:roombooking/student/widgets/student_navbar.dart';
 
 class Stdroomlist extends StatefulWidget {
   const Stdroomlist({super.key});
@@ -20,82 +21,7 @@ class _StdroomlistState extends State<Stdroomlist> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(Icons.arrow_back, color: Colors.white),
-                  ),
-                  //profile
-                  IconButton(
-                    icon: const Icon(
-                      Icons.account_circle,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            title: Text(
-                              'Are you sure you \nwant to logout?',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.alice(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            actionsAlignment: MainAxisAlignment.center,
-                            actions: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const HomeScreen(),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  shape: const StadiumBorder(),
-                                ),
-                                child: Text(
-                                  'Logout',
-                                  style: GoogleFonts.alice(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text(
-                                  'Cancel',
-                                  style: GoogleFonts.alice(
-                                    color: Colors.black,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
+              const StudentNavbar(showBack: true),
               const SizedBox(height: 20),
 
               Expanded(
