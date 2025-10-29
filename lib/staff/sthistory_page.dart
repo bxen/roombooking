@@ -51,7 +51,7 @@ class _SthistoryPageState extends State<SthistoryPage> {
           padding: const EdgeInsets.only(left: 8),
           child: Text(
             'Booking History',
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.alice(
               textStyle: const TextStyle(
                 color: Colors.white,
                 fontSize: 26,
@@ -223,7 +223,7 @@ class _BookingCard extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 6),
       child: RichText(
         text: TextSpan(
-          style: const TextStyle(
+          style: GoogleFonts.alice(
             color: Colors.black87,
             fontSize: 14,
             height: 1.35,
@@ -231,7 +231,7 @@ class _BookingCard extends StatelessWidget {
           children: [
             TextSpan(
               text: '$k : ',
-              style: TextStyle(
+              style: GoogleFonts.alice(
                 fontWeight: boldKey ? FontWeight.w700 : FontWeight.w600,
               ),
             ),

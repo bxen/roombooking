@@ -33,7 +33,7 @@ class _StaffAddroomState extends State<StaffAddroom> {
         ),
         title: Text(
           'Add new room',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.alice(
             fontSize: 24,
             color: Colors.white,
             fontWeight: FontWeight.w500,
@@ -58,7 +58,7 @@ class _StaffAddroomState extends State<StaffAddroom> {
                 // Room name
                 Text(
                   'Room name',
-                  style: GoogleFonts.playfairDisplay(fontSize: 18),
+                  style: GoogleFonts.alice(fontSize: 18),
                 ),
                 const SizedBox(height: 8),
                 TextField(
@@ -79,12 +79,12 @@ class _StaffAddroomState extends State<StaffAddroom> {
                   children: [
                     Text(
                       'Status: ',
-                      style: GoogleFonts.playfairDisplay(fontSize: 18),
+                      style: GoogleFonts.alice(fontSize: 18),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       'Enable',
-                      style: GoogleFonts.playfairDisplay(fontSize: 16),
+                      style: GoogleFonts.alice(fontSize: 16),
                     ),
                     Switch(
                       value: isEnabled,
@@ -93,7 +93,7 @@ class _StaffAddroomState extends State<StaffAddroom> {
                     ),
                     Text(
                       'Disable',
-                      style: GoogleFonts.playfairDisplay(fontSize: 16),
+                      style: GoogleFonts.alice(fontSize: 16),
                     ),
                   ],
                 ),
@@ -102,7 +102,7 @@ class _StaffAddroomState extends State<StaffAddroom> {
                 // Room image placeholder + button
                 Text(
                   'Room image',
-                  style: GoogleFonts.playfairDisplay(fontSize: 18),
+                  style: GoogleFonts.alice(fontSize: 18),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -131,7 +131,7 @@ class _StaffAddroomState extends State<StaffAddroom> {
                       ),
                       child: Text(
                         'Update image',
-                        style: GoogleFonts.playfairDisplay(fontSize: 16),
+                       style: GoogleFonts.alice(fontSize: 16),
                       ),
                     ),
                   ],
@@ -141,7 +141,7 @@ class _StaffAddroomState extends State<StaffAddroom> {
                 // Time Slots
                 Text(
                   'Default Time Slots:',
-                  style: GoogleFonts.playfairDisplay(fontSize: 18),
+                  style: GoogleFonts.alice(fontSize: 18),
                 ),
                 const SizedBox(height: 8),
                 Column(
@@ -149,7 +149,7 @@ class _StaffAddroomState extends State<StaffAddroom> {
                     return CheckboxListTile(
                       title: Text(
                         slot,
-                        style: GoogleFonts.playfairDisplay(fontSize: 16),
+                        style: GoogleFonts.alice(fontSize: 16),
                       ),
                       activeColor: Colors.black,
                       value: selectedSlots.contains(slot),
@@ -187,7 +187,7 @@ class _StaffAddroomState extends State<StaffAddroom> {
                       ),
                       child: Text(
                         'Save',
-                        style: GoogleFonts.playfairDisplay(fontSize: 18),
+                        style: GoogleFonts.alice(fontSize: 18),
                       ),
                     ),
                     ElevatedButton(
@@ -205,7 +205,7 @@ class _StaffAddroomState extends State<StaffAddroom> {
                       ),
                       child: Text(
                         'Cancel',
-                        style: GoogleFonts.playfairDisplay(fontSize: 18),
+                        style: GoogleFonts.alice(fontSize: 18),
                       ),
                     ),
                   ],

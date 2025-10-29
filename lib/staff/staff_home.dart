@@ -204,7 +204,7 @@ class StaffHomePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    "Let make a \nReservation",
+                    "Manage Room \nReservation",
                     style: GoogleFonts.alice(color: Colors.white, fontSize: 25),
                   ),
                   const SizedBox(width: 12),
@@ -212,7 +212,7 @@ class StaffHomePage extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const Stdroomlist()),
+                        MaterialPageRoute(builder: (_) => const StaffAssetList()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
