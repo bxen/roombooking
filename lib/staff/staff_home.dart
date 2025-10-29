@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roombooking/screens/home_screen.dart';
+import 'package:roombooking/staff/staff_assetlist.dart';
 import 'package:roombooking/student/stdhistory_page.dart';
 import 'package:roombooking/student/stdroomlist.dart';
 import 'package:roombooking/student/stdstatus_page.dart';
@@ -16,10 +17,8 @@ class _StaffHomeState extends State<StaffHome> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    const StudentHomePage(),
-    const Stdroomlist(), // browse room list page
-    const StdhistoryPage(), // history page
-    const StdstatusPage(), // status page
+    const StaffHomePage(),
+    const StaffAssetList(), // browse room list page
   ];
 
   void _onItemTapped(int index) {
@@ -45,7 +44,7 @@ class _StaffHomeState extends State<StaffHome> {
             icon: Icon(Icons.meeting_room),
             label: 'Rooms',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.layers), label: 'Status'),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Add'),
           BottomNavigationBarItem(
             icon: Icon(Icons.history_edu),
             label: 'History',
@@ -56,8 +55,8 @@ class _StaffHomeState extends State<StaffHome> {
   }
 }
 
-class StudentHomePage extends StatelessWidget {
-  const StudentHomePage({super.key});
+class StaffHomePage extends StatelessWidget {
+  const StaffHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
