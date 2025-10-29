@@ -235,8 +235,17 @@ class _StdbookingPageState extends State<StdbookingPage> {
                                                 onPressed: () {
                                                   Navigator.pop(ctx); // close dialog
                                                   final home = context.findAncestorStateOfType<StudentHomeState>();
-                                                  home?.changeTab(2); // switch to Status tab
-                                                  Navigator.pop(context); // close booking page
+                                                  if (home != null) {
+                                                    home.changeTab(2); // switch to Status tab
+                                                    Navigator.pop(context); // close booking page
+                                                  } else {
+                                                    Navigator.pushReplacement(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (_) => StudentHome(initialIndex: 2),
+                                                      ),
+                                                    );
+                                                  }
                                                 },
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: Colors.green[800],
