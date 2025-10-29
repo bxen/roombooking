@@ -124,8 +124,41 @@ class _StdroomlistState extends State<Stdroomlist> {
                       ],
                     ),
                     _buildRoomCard(
-                      imagePath: 'images/roomC103.jpg',
+                      imagePath: 'images/roomB201.jpg',
                       roomName: 'Room B201',
+                      date: DateTime.now(),
+                      timeSlots: [
+                        {'time': '8:00–10:00', 'status': 'Free'},
+                        {'time': '10:00–12:00', 'status': 'Disabled'},
+                        {'time': '13:00–15:00', 'status': 'Pending'},
+                        {'time': '15:00–17:00', 'status': 'Free'},
+                      ],
+                    ),
+                     _buildRoomCard(
+                      imagePath: 'images/roomB202.jpg',
+                      roomName: 'Room B202',
+                      date: DateTime.now(),
+                      timeSlots: [
+                        {'time': '8:00–10:00', 'status': 'Free'},
+                        {'time': '10:00–12:00', 'status': 'Disabled'},
+                        {'time': '13:00–15:00', 'status': 'Pending'},
+                        {'time': '15:00–17:00', 'status': 'Free'},
+                      ],
+                    ),
+                    _buildRoomCard(
+                      imagePath: 'images/roomC101.jpg',
+                      roomName: 'Room C101',
+                      date: DateTime.now(),
+                      timeSlots: [
+                        {'time': '8:00–10:00', 'status': 'Free'},
+                        {'time': '10:00–12:00', 'status': 'Disabled'},
+                        {'time': '13:00–15:00', 'status': 'Pending'},
+                        {'time': '15:00–17:00', 'status': 'Free'},
+                      ],
+                    ),
+                    _buildRoomCard(
+                      imagePath: 'images/roomC102.jpg',
+                      roomName: 'Room C102',
                       date: DateTime.now(),
                       timeSlots: [
                         {'time': '8:00–10:00', 'status': 'Free'},
