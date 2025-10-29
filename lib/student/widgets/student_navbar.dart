@@ -79,7 +79,7 @@ class StudentNavbar extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 title: Text(
-                  'Are you sure you \\n+want to logout?',
+                  'Are you sure you \nwant to logout?',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.alice(
                     fontSize: 20,
