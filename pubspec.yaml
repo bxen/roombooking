@@ -63,6 +63,10 @@ flutter:
   - images/roomscreen.jpg
   - images/roomA101.jpg
   - images/roomA102.jpg
+  - images/roomB201.jpg
+  - images/roomB202.jpg
+  - images/roomC101.jpg
+  - images/roomC102.jpg
   - images/roomC103.jpg
 
   #   - images/a_dot_burr.jpeg
