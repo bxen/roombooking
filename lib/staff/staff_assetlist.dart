@@ -44,9 +44,9 @@ class _StaffAssetListState extends State<StaffAssetList> {
                 child: ListView(
                   children: [
                     _buildRoomCard(
-                      imagePath: 'images/roomA207.jpg',
-                      roomName: 'Room A207',
-                      date: '20 Oct 2025',
+                      imagePath: 'images/roomA101.jpg',
+                      roomName: 'Room A101',
+                      date: DateTime.now(),
                       timeSlots: [
                         {'time': '8:00–10:00', 'status': 'Free'},
                         {'time': '10:00–12:00', 'status': 'Free'},
@@ -55,12 +55,34 @@ class _StaffAssetListState extends State<StaffAssetList> {
                       ],
                     ),
                     _buildRoomCard(
-                      imagePath: 'images/roomB109.jpg',
-                      roomName: 'Room B109',
-                      date: '20 Oct 2025',
+                      imagePath: 'images/roomA102.jpg',
+                      roomName: 'Room A102',
+                      date: DateTime.now(),
                       timeSlots: [
                         {'time': '8:00–10:00', 'status': 'Free'},
-                        {'time': '10:00–12:00', 'status': 'Free'},
+                        {'time': '10:00–12:00', 'status': 'Disabled'},
+                        {'time': '13:00–15:00', 'status': 'Pending'},
+                        {'time': '15:00–17:00', 'status': 'Free'},
+                      ],
+                    ),
+                    _buildRoomCard(
+                      imagePath: 'images/roomB201.jpg',
+                      roomName: 'Room B201',
+                      date: DateTime.now(),
+                      timeSlots: [
+                        {'time': '8:00–10:00', 'status': 'Free'},
+                        {'time': '10:00–12:00', 'status': 'Disabled'},
+                        {'time': '13:00–15:00', 'status': 'Pending'},
+                        {'time': '15:00–17:00', 'status': 'Free'},
+                      ],
+                    ),
+                    _buildRoomCard(
+                      imagePath: 'images/roomB202.jpg',
+                      roomName: 'Room B202',
+                      date: DateTime.now(),
+                      timeSlots: [
+                        {'time': '8:00–10:00', 'status': 'Free'},
+                        {'time': '10:00–12:00', 'status': 'Disabled'},
                         {'time': '13:00–15:00', 'status': 'Pending'},
                         {'time': '15:00–17:00', 'status': 'Free'},
                       ],
@@ -68,10 +90,23 @@ class _StaffAssetListState extends State<StaffAssetList> {
                     _buildRoomCard(
                       imagePath: 'images/roomC101.jpg',
                       roomName: 'Room C101',
-                      date: '20 Oct 2025',
+                      date: DateTime.now(),
                       timeSlots: [
-                        {'time': '8:00–10:00', 'status': 'Pending'},
-                        {'time': '10:00–12:00', 'status': 'Disable'},
+                        {'time': '8:00–10:00', 'status': 'Free'},
+                        {'time': '10:00–12:00', 'status': 'Disabled'},
+                        {'time': '13:00–15:00', 'status': 'Pending'},
+                        {'time': '15:00–17:00', 'status': 'Free'},
+                      ],
+                    ),
+                    _buildRoomCard(
+                      imagePath: 'images/roomC102.jpg',
+                      roomName: 'Room C102',
+                      date: DateTime.now(),
+                      timeSlots: [
+                        {'time': '8:00–10:00', 'status': 'Free'},
+                        {'time': '10:00–12:00', 'status': 'Disabled'},
+                        {'time': '13:00–15:00', 'status': 'Pending'},
+                        {'time': '15:00–17:00', 'status': 'Free'},
                       ],
                     ),
                   ],
@@ -87,7 +122,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
   Widget _buildRoomCard({
     required String imagePath,
     required String roomName,
-    required String date,
+    required DateTime date,
     required List<Map<String, String>> timeSlots,
   }) {
     return Container(
@@ -101,18 +136,23 @@ class _StaffAssetListState extends State<StaffAssetList> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // image
+          // รูปภาพ
           Container(
             width: 100,
             height: 120,
             decoration: BoxDecoration(
               color: Colors.grey[300],
               borderRadius: BorderRadius.circular(10),
-              image: DecorationImage(
-                image: AssetImage(imagePath),
-                fit: BoxFit.cover,
-              ),
+              image: imagePath.isNotEmpty
+                  ? DecorationImage(
+                      image: AssetImage(imagePath),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
             ),
+            child: imagePath.isEmpty
+                ? const Center(child: Icon(Icons.photo, color: Colors.white70))
+                : null,
           ),
           const SizedBox(width: 16),
 
@@ -130,7 +170,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Time Slots $date',
+                  'Time Slots ${date.toLocal()}',
                   style: GoogleFonts.alice(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -150,7 +190,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
                       case 'Pending':
                         color = Colors.amber[800]!;
                         break;
-                      case 'Disable':
+                      case 'Disabled':
                         color = Colors.red;
                         break;
                       default:
@@ -162,38 +202,6 @@ class _StaffAssetListState extends State<StaffAssetList> {
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 10),
-
-                // buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => _showEditDialog(context, roomName),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[800],
-                        shape: const StadiumBorder(),
-                      ),
-                      child: Text(
-                        'EDIT',
-                        style: GoogleFonts.alice(color: Colors.white),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () =>
-                          _showDisableDialog(context, roomName, timeSlots),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        shape: const StadiumBorder(),
-                      ),
-                      child: Text(
-                        'Disable',
-                        style: GoogleFonts.alice(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
@@ -202,254 +210,6 @@ class _StaffAssetListState extends State<StaffAssetList> {
     );
   }
 
-  // ----------- Edit Popup ----------
-  void _showEditDialog(BuildContext context, String roomName) {
-    TextEditingController nameController = TextEditingController(
-      text: roomName,
-    );
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Center(
-            child: Text(
-              'EDIT',
-              style: GoogleFonts.alice(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _dialogButton('Save Name', () {}),
-                  _dialogButton('Save Image', () {}),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _dialogButton('Save', () => Navigator.pop(context)),
-                  _dialogButton('Cancel', () => Navigator.pop(context)),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  // ----------- Disable Popup ----------
-  void _showDisableDialog(
-    BuildContext context,
-    String roomName,
-    List<Map<String, String>> timeSlots,
-  ) {
-    List<bool> selected = List.filled(timeSlots.length, false);
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Center(
-            child: Text(
-              'Disable this room?',
-              style: GoogleFonts.alice(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          content: StatefulBuilder(
-            builder: (context, setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'You are disable $roomName for the following time slots:',
-                    style: GoogleFonts.alice(fontSize: 14),
-                  ),
-                  const SizedBox(height: 10),
-                  Column(
-                    children: List.generate(timeSlots.length, (index) {
-                      final slot = timeSlots[index];
-                      Color color;
-                      switch (slot['status']) {
-                        case 'Free':
-                          color = Colors.green;
-                          break;
-                        case 'Pending':
-                          color = Colors.amber[800]!;
-                          break;
-                        case 'Disable':
-                          color = Colors.red;
-                          break;
-                        default:
-                          color = Colors.black;
-                      }
-                      return CheckboxListTile(
-                        activeColor: Colors.black,
-                        controlAffinity: ListTileControlAffinity.leading,
-                        title: Text(
-                          '${slot['time']} ${slot['status']}',
-                          style: GoogleFonts.alice(color: color),
-                        ),
-                        value: selected[index],
-                        onChanged: (val) {
-                          setState(() {
-                            selected[index] = val!;
-                          });
-                        },
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    'When disable, this room will not be available for booking.',
-                    style: GoogleFonts.alice(fontSize: 12),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          List<String> selectedTimes = [];
-                          for (int i = 0; i < timeSlots.length; i++) {
-                            if (selected[i]) {
-                              selectedTimes.add(timeSlots[i]['time']!);
-                            }
-                          }
-
-                          Navigator.pop(context);
-
-                          if (selectedTimes.isNotEmpty) {
-                            _showSuccessDialog(
-                              context,
-                              roomName,
-                              selectedTimes,
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green[800],
-                          shape: const StadiumBorder(),
-                        ),
-                        child: Text(
-                          'Confirm',
-                          style: GoogleFonts.alice(color: Colors.white),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: const StadiumBorder(),
-                        ),
-                        child: Text(
-                          'Cancel',
-                          style: GoogleFonts.alice(color: Colors.black),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  // ✅ Popup success หลังจาก Confirm
-  void _showSuccessDialog(
-    BuildContext context,
-    String roomName,
-    List<String> selectedTimes,
-  ) {
-    String times = selectedTimes.join(', ');
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Center(
-            child: Icon(Icons.check_circle, color: Colors.green[700], size: 50),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "'$roomName'\nTime: $times\nhas been disabled successfully.",
-                textAlign: TextAlign.center,
-                style: GoogleFonts.alice(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 15),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  shape: const StadiumBorder(),
-                ),
-                child: Text(
-                  'OK',
-                  style: GoogleFonts.alice(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  // Helper for dialog buttons
-  Widget _dialogButton(String text, VoidCallback onPressed) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.black,
-        shape: const StadiumBorder(),
-      ),
-      child: Text(text, style: GoogleFonts.alice(color: Colors.white)),
-    );
-  }
-
-  // Logout dialog
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
