@@ -18,8 +18,8 @@ class _StudentHomeState extends State<StudentHome> {
   final List<Widget> _pages = [
     const StudentHomePage(),
     const Stdroomlist(), // browse room list page
-    const StdhistoryPage(), // history page
     const StdstatusPage(), // status page
+    const StdhistoryPage(), // history page
   ];
 
   void _onItemTapped(int index) {
@@ -78,7 +78,7 @@ class StudentHomePage extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                //profile 
+                //profile
                 IconButton(
                   icon: const Icon(
                     Icons.account_circle,
@@ -117,7 +117,13 @@ class StudentHomePage extends StatelessWidget {
                                 backgroundColor: Colors.red,
                                 shape: const StadiumBorder(),
                               ),
-                              child: Text('Logout',style: GoogleFonts.alice(color: Colors.white,fontSize: 15),),
+                              child: Text(
+                                'Logout',
+                                style: GoogleFonts.alice(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                ),
+                              ),
                             ),
                             TextButton(
                               onPressed: () {
@@ -125,7 +131,10 @@ class StudentHomePage extends StatelessWidget {
                               },
                               child: Text(
                                 'Cancel',
-                               style: GoogleFonts.alice(color: Colors.black,fontSize: 15),
+                                style: GoogleFonts.alice(
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                ),
                               ),
                             ),
                           ],

@@ -32,7 +32,6 @@ class RoomReservationApp extends StatelessWidget {
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
       },
-
     );
   }
 }
