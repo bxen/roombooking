@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:roombooking/screens/home_screen.dart';
+import 'package:roombooking/student/stdhistory_page.dart';
 import 'package:roombooking/student/stdroomlist.dart';
+import 'package:roombooking/student/student_home.dart';
 
 class StdstatusPage extends StatelessWidget {
   const StdstatusPage({super.key});
@@ -19,18 +22,84 @@ class StdstatusPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(Icons.arrow_back, color: Colors.white),
+                  ),
                   Text(
                     'Booking Status',
                     style: GoogleFonts.alice(
                       color: Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.none,
                     ),
                   ),
-                  const Icon(
-                    Icons.account_circle,
-                    color: Colors.white,
-                    size: 28,
+                  IconButton(
+                    icon: const Icon(
+                      Icons.account_circle,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            title: Text(
+                              'Are you sure you \nwant to logout?',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.alice(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            actionsAlignment: MainAxisAlignment.center,
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const HomeScreen(),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  shape: const StadiumBorder(),
+                                ),
+                                child: Text(
+                                  'Logout',
+                                  style: GoogleFonts.alice(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  'Cancel',
+                                  style: GoogleFonts.alice(
+                                    color: Colors.black,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
@@ -181,7 +250,13 @@ class StdstatusPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () {
+              Navigator.pop(ctx); // ปิด dialog / กลับไปหน้าแม่ก่อน
+              final home = context.findAncestorStateOfType<StudentHomeState>();
+              home?.changeTab(
+                3,
+              ); // 3 = index ของ History (Home=0, Rooms=1, Status=2, History=3)
+            },
             child: Text(
               'Confirm',
               style: GoogleFonts.alice(color: Colors.white),
