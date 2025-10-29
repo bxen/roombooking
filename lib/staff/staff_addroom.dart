@@ -39,7 +39,6 @@ class _StaffAddroomState extends State<StaffAddroom> {
             fontWeight: FontWeight.w500,
           ),
         ),
-        centerTitle: false,
       ),
       body: Center(
         child: Container(
@@ -50,170 +49,169 @@ class _StaffAddroomState extends State<StaffAddroom> {
             color: const Color(0xFFF8F8F8),
             borderRadius: BorderRadius.circular(20),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Room name
-              Text(
-                'Room name',
-                style: GoogleFonts.playfairDisplay(fontSize: 18),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: roomNameController,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color.fromARGB(255, 14, 13, 13),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: BorderSide.none,
+
+          // ✅ ห่อ Column ด้วย SingleChildScrollView
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Room name
+                Text(
+                  'Room name',
+                  style: GoogleFonts.playfairDisplay(fontSize: 18),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: roomNameController,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: const Color.fromARGB(255, 14, 13, 13),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(height: 20),
 
-              const SizedBox(height: 20),
-
-              // Status
-              Row(
-                children: [
-                  Text(
-                    'Status: ',
-                    style: GoogleFonts.playfairDisplay(fontSize: 18),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Enable',
-                    style: GoogleFonts.playfairDisplay(fontSize: 16),
-                  ),
-                  Switch(
-                    value: isEnabled,
-                    activeColor: Colors.black,
-                    onChanged: (value) => setState(() => isEnabled = value),
-                  ),
-                  Text(
-                    'Disable',
-                    style: GoogleFonts.playfairDisplay(fontSize: 16),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              // Room image placeholder + button
-              Text(
-                'Room image',
-                style: GoogleFonts.playfairDisplay(fontSize: 18),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  // สี่เหลี่ยมแทนรูปภาพ
-                  Container(
-                    width: 100,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[400],
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[300],
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Text(
-                      'Update image',
-                      style: GoogleFonts.playfairDisplay(fontSize: 16),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              // Time Slots
-              Text(
-                'Default Time Slots:',
-                style: GoogleFonts.playfairDisplay(fontSize: 18),
-              ),
-              const SizedBox(height: 8),
-              Column(
-                children: timeSlots.map((slot) {
-                  return CheckboxListTile(
-                    title: Text(
-                      slot,
-                      style: GoogleFonts.playfairDisplay(fontSize: 16),
-                    ),
-                    activeColor: Colors.black,
-                    value: selectedSlots.contains(slot),
-                    onChanged: (bool? value) {
-                      setState(() {
-                        if (value == true) {
-                          selectedSlots.add(slot);
-                        } else {
-                          selectedSlots.remove(slot);
-                        }
-                      });
-                    },
-                    controlAffinity: ListTileControlAffinity.leading,
-                  );
-                }).toList(),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Save / Cancel buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 40,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: Text(
-                      'Save',
+                // Status
+                Row(
+                  children: [
+                    Text(
+                      'Status: ',
                       style: GoogleFonts.playfairDisplay(fontSize: 18),
                     ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 40,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Enable',
+                      style: GoogleFonts.playfairDisplay(fontSize: 16),
+                    ),
+                    Switch(
+                      value: isEnabled,
+                      activeColor: Colors.black,
+                      onChanged: (value) => setState(() => isEnabled = value),
+                    ),
+                    Text(
+                      'Disable',
+                      style: GoogleFonts.playfairDisplay(fontSize: 16),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Room image placeholder + button
+                Text(
+                  'Room image',
+                  style: GoogleFonts.playfairDisplay(fontSize: 18),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Container(
+                      width: 100,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    child: Text(
-                      'Cancel',
-                      style: GoogleFonts.playfairDisplay(fontSize: 18),
+                    const SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[300],
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        'Update image',
+                        style: GoogleFonts.playfairDisplay(fontSize: 16),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Time Slots
+                Text(
+                  'Default Time Slots:',
+                  style: GoogleFonts.playfairDisplay(fontSize: 18),
+                ),
+                const SizedBox(height: 8),
+                Column(
+                  children: timeSlots.map((slot) {
+                    return CheckboxListTile(
+                      title: Text(
+                        slot,
+                        style: GoogleFonts.playfairDisplay(fontSize: 16),
+                      ),
+                      activeColor: Colors.black,
+                      value: selectedSlots.contains(slot),
+                      onChanged: (bool? value) {
+                        setState(() {
+                          if (value == true) {
+                            selectedSlots.add(slot);
+                          } else {
+                            selectedSlots.remove(slot);
+                          }
+                        });
+                      },
+                      controlAffinity: ListTileControlAffinity.leading,
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 20),
+
+                // Save / Cancel buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: Text(
+                        'Save',
+                        style: GoogleFonts.playfairDisplay(fontSize: 18),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: GoogleFonts.playfairDisplay(fontSize: 18),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
