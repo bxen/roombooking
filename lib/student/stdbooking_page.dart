@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 class StdbookingPage extends StatefulWidget {
   final String roomName;
@@ -23,6 +24,9 @@ class StdbookingPage extends StatefulWidget {
 class _StdbookingPageState extends State<StdbookingPage> {
   String? selectedObjective;
   String? selectedTime;
+  final String currentDate = DateFormat('d MMMM yyyy').format(DateTime.now()); //change date 3/10/2025 to 3 October 2025
+
+
 
   final List<String> objectives = [
     'Presentation practice',
@@ -191,14 +195,20 @@ class _StdbookingPageState extends State<StdbookingPage> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                // Text(
-                                                //   'Time Slots ${date.day}/${date.month}/${date.year}',
-                                                //   style: GoogleFonts.alice(
-                                                //     color: Colors.red,
-                                                //     fontSize: 18,
-                                                //   ),
-                                                // ),
                                                 Text(
+                                                  widget.roomName,
+                                                  style: GoogleFonts.alice(
+                                                    color: Colors.red,
+                                                    fontSize: 18,
+                                                  ),
+                                                ),Text(
+                                                  'Date: $currentDate',
+                                                  style: GoogleFonts.alice(
+                                                    color: Colors.red,
+                                                    fontSize: 18,
+                                                  ),
+                                                ),
+                                                 Text(
                                                   'Time: $selectedTime',
                                                   style: GoogleFonts.alice(
                                                     color: Colors.red,
