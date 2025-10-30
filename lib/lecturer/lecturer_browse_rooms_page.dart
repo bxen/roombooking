@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:roombooking/lecturer/lecturer_home.dart';
 import 'lecturer_theme.dart';
 import 'lecturer_widgets.dart';
 
@@ -63,7 +64,7 @@ class LecturerBrowseRoomsPage extends StatelessWidget {
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>LecturerHome())),
           ),
           title: Text('Browse Rooms',
               style: GoogleFonts.alice(fontWeight: FontWeight.bold)),
