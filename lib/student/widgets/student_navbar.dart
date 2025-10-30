@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roombooking/screens/home_screen.dart';
+import 'package:roombooking/student/stdroomlist.dart';
+import 'package:roombooking/student/student_home.dart';
 
 class StudentNavbar extends StatelessWidget {
   final String? title;
@@ -25,7 +27,7 @@ class StudentNavbar extends StatelessWidget {
     Widget buildBackOrLeading() {
       if (showBack) {
         return IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>StudentHome())),
           icon: const Icon(Icons.arrow_back, color: Colors.white),
         );
       }
