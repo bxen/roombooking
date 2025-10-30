@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:roombooking/student/stdstatus_page.dart';
+import 'package:roombooking/student/widgets/student_navbar.dart';
+import 'package:roombooking/student/student_home.dart';
 
 class StdbookingPage extends StatefulWidget {
   final String roomName;
@@ -40,14 +43,7 @@ class _StdbookingPageState extends State<StdbookingPage> {
       body: SafeArea(
         child: Column(
           children: [
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: Icon(Icons.arrow_back, color: Colors.white),
-                ),
-              ],
-            ),
+            const StudentNavbar(showBack: true, showProfile: false),
             Expanded(
               child: Container(
                 margin: EdgeInsets.all(16),
@@ -171,7 +167,7 @@ class _StdbookingPageState extends State<StdbookingPage> {
                                         selectedTime != null) {
                                       showDialog(
                                         context: context,
-                                        builder: (BuildContext context) {
+                                        builder: (BuildContext ctx) {
                                           return AlertDialog(
                                             backgroundColor: const Color(
                                               0xFFF8F5F0,
@@ -237,8 +233,23 @@ class _StdbookingPageState extends State<StdbookingPage> {
                                             actions: [
                                               ElevatedButton(
                                                 onPressed: () {
-                                                  Navigator.pop(context);
-                                                },style: ElevatedButton.styleFrom(backgroundColor: Colors.green[800]),
+                                                  Navigator.pop(ctx); // close dialog
+                                                  final home = context.findAncestorStateOfType<StudentHomeState>();
+                                                  if (home != null) {
+                                                    home.changeTab(2); // switch to Status tab
+                                                    Navigator.pop(context); // close booking page
+                                                  } else {
+                                                    Navigator.pushReplacement(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (_) => StudentHome(initialIndex: 2),
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.green[800],
+                                                ),
                                                 child: Text('Confirm',style: TextStyle(color: Colors.white),),
                                               ),
 
