@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roombooking/screens/home_screen.dart';
+import 'package:roombooking/staff/staff_home.dart';
 
 class StaffAssetList extends StatefulWidget {
   const StaffAssetList({super.key});
@@ -25,7 +26,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>StaffHome())),
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
                   ),
                   IconButton(
