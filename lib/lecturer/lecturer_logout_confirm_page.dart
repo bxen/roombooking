@@ -1,58 +1,32 @@
 import 'package:flutter/material.dart';
 import 'lecturer_theme.dart';
-import '../screens/login_page.dart'; // กลับไปหน้า LoginPage() ของคุณ
+import 'lecturer_widgets.dart'; // ใช้ showLecturerLogoutDialog
 
-class LecturerLogoutConfirmPage extends StatelessWidget {
+class LecturerLogoutConfirmPage extends StatefulWidget {
   const LecturerLogoutConfirmPage({super.key});
+
+  @override
+  State<LecturerLogoutConfirmPage> createState() => _LecturerLogoutConfirmPageState();
+}
+
+class _LecturerLogoutConfirmPageState extends State<LecturerLogoutConfirmPage> {
+  @override
+  void initState() {
+    super.initState();
+    // เปิด dialog ทันทีที่หน้าพร้อม
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await showLecturerLogoutDialog(context);
+      if (mounted) Navigator.pop(context); // ปิดหน้านี้ถ้า user กดยกเลิก
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Theme(
       data: LecturerTheme.theme(),
-      child: Scaffold(
-        appBar: AppBar(),
-        body: Center(
-          child: Container(
-            margin: const EdgeInsets.all(24),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: LecturerTheme.surface,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('Are you sure you want to logout?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: LecturerTheme.text)),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('No'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // ล้างสแตกแล้วกลับไป LoginPage()
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(builder: (_) => const LoginPage()),
-                            (route) => false,
-                          );
-                        },
-                        child: const Text('Yes'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
+      child: const Scaffold(
+        // ไม่ต้องมีอะไร แค่พื้นหลังรองไว้ให้เปิด dialog
+        body: SizedBox.shrink(),
       ),
     );
   }

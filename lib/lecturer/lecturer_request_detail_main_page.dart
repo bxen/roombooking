@@ -12,7 +12,15 @@ class LecturerRequestDetailMainPage extends StatelessWidget {
     return Theme(
       data: LecturerTheme.theme(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('Booking Requests')),
+        appBar: AppBar(
+          title: const Text('Booking Requests'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.account_circle, color: Colors.white, size: 32),
+              onPressed: () => showLecturerLogoutDialog(context),
+            ),
+          ],
+        ),
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
@@ -28,7 +36,10 @@ class LecturerRequestDetailMainPage extends StatelessWidget {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LecturerRequestDetailApprovePage())),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LecturerRequestDetailApprovePage()),
+                    ),
                     child: const Text('Approve'),
                   ),
                 ),
@@ -36,7 +47,10 @@ class LecturerRequestDetailMainPage extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LecturerRequestDetailRejectPage())),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LecturerRequestDetailRejectPage()),
+                    ),
                     child: const Text('Reject'),
                   ),
                 ),
