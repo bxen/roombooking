@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LecturerTheme {
   // Colors
@@ -54,7 +55,7 @@ class LecturerTheme {
           ),
         ),
       ),
-      textTheme: base.textTheme.apply(
+      textTheme: GoogleFonts.aliceTextTheme(base.textTheme).apply(
         bodyColor: text,
         displayColor: text,
       ),

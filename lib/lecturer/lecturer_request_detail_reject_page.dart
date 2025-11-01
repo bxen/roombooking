@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'lecturer_theme.dart';
 import 'lecturer_widgets.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LecturerRequestDetailRejectPage extends StatelessWidget {
   const LecturerRequestDetailRejectPage({super.key});
@@ -27,7 +28,7 @@ class LecturerRequestDetailRejectPage extends StatelessWidget {
               room: 'Room A307',
               date: '20 Oct 2025',
               time: '11:00-13:00',
-              borrower: 'ID: 65070001',
+              borrower: 'Lionflower',
               objective: 'Midterm practice',
             ),
             const SizedBox(height: 12),
@@ -37,9 +38,9 @@ class LecturerRequestDetailRejectPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
+                    Text(
                       'Reject this booking?',
-                      style: TextStyle(
+                      style: GoogleFonts.alice(
                         fontWeight: FontWeight.w700,
                         color: LecturerTheme.text,
                       ),
