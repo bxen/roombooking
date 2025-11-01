@@ -4,8 +4,7 @@ import 'package:roombooking/screens/home_screen.dart';
 import 'package:roombooking/staff/staff_addroom.dart';
 import 'package:roombooking/staff/staff_assetlist.dart';
 import 'package:roombooking/staff/sthistory_page.dart';
-import 'package:roombooking/student/stdroomlist.dart';
-import 'package:roombooking/student/stdstatus_page.dart';
+
 
 class StaffHome extends StatefulWidget {
   const StaffHome({super.key});
@@ -58,17 +57,23 @@ class _StaffHomeState extends State<StaffHome> {
   }
 }
 
+
+
 class StaffHomePage extends StatelessWidget {
   const StaffHomePage({super.key});
 
+  static const _r = 20.0; // radius
+  static const _g = 16.0; // gap
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
+      child: SafeArea( 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // --- Header ---
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -76,195 +81,267 @@ class StaffHomePage extends StatelessWidget {
                   'Welcome !',
                   style: GoogleFonts.alice(
                     color: Colors.white,
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 28, 
+                    fontWeight: FontWeight.w700,
+                    height: 1.1,
                   ),
                 ),
-                //profile
-                IconButton(
-                  icon: const Icon(
-                    Icons.account_circle,
-                    color: Colors.white,
-                    size: 32,
-                  ),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          title: Text(
-                            'Are you sure you \nwant to logout?',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.alice(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          actionsAlignment: MainAxisAlignment.center,
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const HomeScreen(),
-                                  ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                shape: const StadiumBorder(),
-                              ),
-                              child: Text(
-                                'Logout',
-                                style: GoogleFonts.alice(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text(
-                                'Cancel',
-                                style: GoogleFonts.alice(
-                                  color: Colors.black,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                ),
+                _buildStaffProfileButton(context),
               ],
             ),
+            const SizedBox(height: _g),
 
-            const SizedBox(height: 25),
-
-            // 🔹 All Rooms Summary Box (เหมือนในรูป)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
               decoration: BoxDecoration(
-                color: Colors.black87,
-                borderRadius: BorderRadius.circular(20),
+                color: const Color(0xFFF5F5F5),
+                borderRadius: BorderRadius.circular(_r),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'ALL ROOMS',
+                    'Dashboard', 
                     style: GoogleFonts.alice(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 20,
                     ),
+                  ),
+                  const SizedBox(height: 14),
+                  
+                  // แถวการ์ด 2x2 (Mock Data)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _dashCard(
+                          'Available', 
+                          '7',
+                          Colors.green,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _dashCard(
+                          'Pending', 
+                          '4', 
+                          Colors.orange,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 12),
-
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildStatusItem(Icons.meeting_room, 'Enable', '10'),
-                      _buildStatusItem(Icons.meeting_room, 'Available', '7'),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildStatusItem(Icons.meeting_room, 'Disable', '5'),
-                      _buildStatusItem(Icons.meeting_room, 'Booked', '3'),
+                      Expanded(
+                        child: _dashCard(
+                          'Booked', 
+                          '3',
+                          Colors.redAccent,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _dashCard(
+                          'Disable', 
+                          '5',
+                          Colors.grey,
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildRoomBox('images/roomA101.jpg'),
-                _buildRoomBox('images/roomC103.jpg'),
-              ],
+
+            const SizedBox(height: _g),
+
+  
+            Text(
+              'Quick Actions',
+              style: GoogleFonts.alice(
+                color: Colors.white.withOpacity(0.9), 
+                fontWeight: FontWeight.w600,
+                fontSize: 20,
+              ),
             ),
-            const SizedBox(height: 50),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    "Manage Room \nReservation",
-                    style: GoogleFonts.alice(color: Colors.white, fontSize: 25),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const StaffAssetList()),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: _quickAction(
+                    icon: Icons.add_home_work_rounded, 
+                    label: 'Add Room',
+                    color: Colors.white, 
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const StaffAddroom(),
+                        ),
                       );
                     },
-                    style: ElevatedButton.styleFrom(
-                      shape: const StadiumBorder(),
-                      backgroundColor: Colors.white,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_forward_outlined,
-                      color: Colors.grey,
-                      size: 25,
-                    ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _quickAction(
+                    icon: Icons.edit_location_alt_rounded,
+                    label: 'Manage Rooms',
+                    color: Colors.white, 
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const StaffAssetList(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
+        
+
+            const SizedBox(height: _g),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildRoomBox(String imagePath) {
-    return Container(
-      width: 150,
-      height: 200,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+  Widget _buildStaffProfileButton(BuildContext context) {
+    return IconButton(
+      icon: const Icon(
+        Icons.account_circle,
         color: Colors.white,
-        image: DecorationImage(
-          image: AssetImage(imagePath), // ดึงรูปจาก assets
-          fit: BoxFit.cover,
-        ),
+        size: 32,
+      ),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: Text(
+                'Are you sure you \nwant to logout?',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.alice(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black, 
+                ),
+              ),
+              actionsAlignment: MainAxisAlignment.center,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const HomeScreen(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: const StadiumBorder(),
+                  ),
+                  child: Text(
+                    'Logout',
+                    style: GoogleFonts.alice(
+                      color: Colors.white,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'Cancel',
+                    style: GoogleFonts.alice(
+                      color: Colors.black,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+  Widget _dashCard(String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 22),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.alice(
+              color: Colors.black87,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: GoogleFonts.alice(
+              color: color,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }
-}
 
-Widget _buildStatusItem(IconData icon, String label, String number) {
-  return Row(
-    children: [
-      Icon(icon, color: Colors.white, size: 18),
-      const SizedBox(width: 8),
-      Text(label, style: GoogleFonts.alice(color: Colors.white, fontSize: 15)),
-      const SizedBox(width: 8),
-      Text(
-        number,
-        style: GoogleFonts.alice(
-          color: Colors.white,
-          fontSize: 15,
-          fontWeight: FontWeight.bold,
+  Widget _quickAction({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 22),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withOpacity(0.5)), 
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 32, color: color), 
+            const SizedBox(height: 10),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.alice(
+                color: Colors.white, 
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
-    ],
-  );
-}
+    );
+  }}
