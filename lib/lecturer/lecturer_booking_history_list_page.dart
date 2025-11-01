@@ -135,55 +135,6 @@ class _LecturerBookingHistoryListPageState
     );
   }
 
-  // void _showBookingPopup(BuildContext context, Map<String, String> booking) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (_) => AlertDialog(
-  //       backgroundColor: Colors.white,
-  //       shape: RoundedRectangleBorder(
-  //         borderRadius: BorderRadius.circular(20),
-  //         side: BorderSide(color: Colors.grey.shade300, width: 2), 
-  //       ),
-  //       title: Text(
-  //         booking['room']!,
-  //         style: const TextStyle(
-  //           fontWeight: FontWeight.bold,
-  //           color: Color(0xFF8B0000),
-  //         ),
-  //       ),
-  //       content: Container(
-  //         padding: const EdgeInsets.all(4),
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             newLine('Date', booking['date']!),
-  //             newLine('Time', booking['time']!),
-  //             newLine('Borrower', booking['borrower']!),
-  //             newLine('Approved by', booking['approvedBy']!),
-  //             newLine('Objective', booking['objective']!),
-  //             newLine('Status', booking['status']!),
-  //             if (booking['reason'] != null)
-  //               newLine('Reason', booking['reason']!),
-  //           ],
-  //         ),
-  //       ),
-  //       actions: [
-  //         TextButton(
-  //           style: TextButton.styleFrom(
-  //             backgroundColor: const Color(0xFF8B0000),
-  //             foregroundColor: Colors.white,
-  //             shape: RoundedRectangleBorder(
-  //               borderRadius: BorderRadius.circular(12),
-  //             ),
-  //           ),
-  //           child: const Text('Close'),
-  //           onPressed: () => Navigator.pop(context),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
     void _showBookingPopup(BuildContext context, Map<String, String> booking) {
     Color statusColor;
