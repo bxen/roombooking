@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'lecturer_theme.dart';
 import 'lecturer_widgets.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LecturerRequestDetailApprovePage extends StatelessWidget {
   const LecturerRequestDetailApprovePage({super.key});
@@ -11,7 +12,7 @@ class LecturerRequestDetailApprovePage extends StatelessWidget {
       data: LecturerTheme.theme(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Booking Requests'),
+          title: Text('Booking Requests'),
           actions: [
             IconButton(
               icon: const Icon(Icons.account_circle, color: Colors.white, size: 32),
@@ -46,12 +47,12 @@ class LecturerRequestDetailApprovePage extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text('Booking Approved',
-                    style: TextStyle(fontWeight: FontWeight.w700, color: LecturerTheme.text)),
-                SizedBox(height: 8),
+                    style: GoogleFonts.alice(fontWeight: FontWeight.w700, color: LecturerTheme.text)),
+                const SizedBox(height: 8),
                 Text('The booking has been approved successfully.',
-                    style: TextStyle(color: LecturerTheme.text)),
+                   style: GoogleFonts.alice(color: LecturerTheme.text)),
               ],
             ),
           ),
