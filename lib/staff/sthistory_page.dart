@@ -59,7 +59,6 @@ class _SthistoryPageState extends State<SthistoryPage> {
     return Theme(
       data: StaffTheme.theme(),
       child: Scaffold(
-        backgroundColor: const Color(0xFF8B0000), 
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0, 
@@ -180,8 +179,6 @@ class _SthistoryPageState extends State<SthistoryPage> {
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          // 6. ลบขอบ (side) ของ Popup ออก
-          // side: BorderSide(color: Colors.grey.shade300, width: 2), 
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -198,10 +195,10 @@ class _SthistoryPageState extends State<SthistoryPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                // 7. เปลี่ยนดีไซน์ป้าย Status (ตามรูป)
+                
                 color: statusColor.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(20), // ทำให้มนขึ้น
-                border: Border.all(color: statusColor.withOpacity(0.5)), // เพิ่มขอบสีจาง
+                borderRadius: BorderRadius.circular(20), 
+                border: Border.all(color: statusColor.withOpacity(0.5)),
               ),
               child: Text(
                 booking['status']!,
@@ -269,8 +266,6 @@ class _SthistoryPageState extends State<SthistoryPage> {
         ),
       );
 }
-
-// --- 8. แก้ไข StaffHistoryLine (Widget) ---
 class StaffHistoryLine extends StatelessWidget {
   final String title;
   final String date;
@@ -293,19 +288,18 @@ class StaffHistoryLine extends StatelessWidget {
     Color statusBgColor;
     Color statusBorderColor;
 
-    // 9. ตั้งค่าสีตามดีไซน์ใหม่
     switch (status) {
       case 'Approved':
       case 'Completed':
-        statusColor = Colors.green.shade800; // Text
-        statusBgColor = Colors.green.shade100.withOpacity(0.6); // BG
-        statusBorderColor = Colors.green.shade600; // Border
+        statusColor = Colors.green.shade800; 
+        statusBgColor = Colors.green.shade100.withOpacity(0.6); 
+        statusBorderColor = Colors.green.shade600; 
         break;
       case 'Rejected':
       case 'Canceled':
-        statusColor = Colors.red.shade800; // Text
-        statusBgColor = Colors.red.shade100.withOpacity(0.6); // BG
-        statusBorderColor = Colors.red.shade600; // Border
+        statusColor = Colors.red.shade800; 
+        statusBgColor = Colors.red.shade100.withOpacity(0.6); 
+        statusBorderColor = Colors.red.shade600; 
         break;
       default:
         statusColor = Colors.orange.shade800;
@@ -315,14 +309,12 @@ class StaffHistoryLine extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16), // 10.
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          // 11. เปลี่ยนสีพื้นหลังการ์ด
           color: const Color(0xFFFAF0F0), 
-          borderRadius: BorderRadius.circular(16), // 10.
-          // 12. ลบเงา (BoxShadow) ออก
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -335,23 +327,20 @@ class StaffHistoryLine extends StatelessWidget {
                   style: GoogleFonts.alice(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 4),
-                // 13. เปลี่ยนการแสดงผล (ตามรูป)
                 Text(
                   "$date • $time", 
                   style: GoogleFonts.alice(
                     fontSize: 14,
-                    color: Colors.black54, // ทำให้สีจางลง
-                    fontWeight: FontWeight.w600,
+                    color: Colors.black, 
                   ),
                 ),
               ],
             ),
-      
-            // 14. แก้ไขดีไซน์ป้าย Status (ตามรูป)
+  
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
               decoration: BoxDecoration(
