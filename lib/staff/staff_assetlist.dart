@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:roombooking/screens/home_screen.dart';
 import 'package:roombooking/staff/staff_home.dart';
+import 'package:roombooking/staff/widgets/staff_navbar.dart';
 
 class StaffAssetList extends StatefulWidget {
   const StaffAssetList({super.key});
@@ -21,24 +21,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // top bar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>StaffHome())),
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.account_circle,
-                      color: Colors.white,
-                      size: 32,
-                    ),
-                    onPressed: () => _showLogoutDialog(context),
-                  ),
-                ],
-              ),
+              const StaffNavbar(showBack: true, title: 'Manage Rooms'),
               const SizedBox(height: 20),
 
               // list view
@@ -490,49 +473,4 @@ class _StaffAssetListState extends State<StaffAssetList> {
     );
   }
 
-  // Logout dialog
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Text(
-            'Are you sure you \nwant to logout?',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.alice(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const HomeScreen()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                shape: const StadiumBorder(),
-              ),
-              child: Text(
-                'Logout',
-                style: GoogleFonts.alice(color: Colors.white, fontSize: 15),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Cancel',
-                style: GoogleFonts.alice(color: Colors.black, fontSize: 15),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }

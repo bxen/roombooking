@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:roombooking/staff/widgets/staff_navbar.dart';
 
 class StaffAddroom extends StatefulWidget {
   const StaffAddroom({super.key});
@@ -24,23 +25,16 @@ class _StaffAddroomState extends State<StaffAddroom> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF5C0000),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF5C0000),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Add new room',
-          style: GoogleFonts.alice(
-            fontSize: 24,
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
-      body: Center(
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: StaffNavbar(showBack: true, title: 'Add new room'),
+            ),
+            Expanded(
+              child: Center(
         child: Container(
           width: double.infinity,
           margin: const EdgeInsets.all(20),
@@ -213,6 +207,10 @@ class _StaffAddroomState extends State<StaffAddroom> {
               ],
             ),
           ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
