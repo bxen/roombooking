@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:roombooking/screens/home_screen.dart';
 import 'package:roombooking/staff/staff_home.dart';
-import 'package:roombooking/staff/widgets/staff_navbar.dart';
+import 'package:roombooking/staff/widgets/staff_navbar.dart'; 
 
 class StaffAssetList extends StatefulWidget {
   const StaffAssetList({super.key});
@@ -15,20 +16,33 @@ class _StaffAssetListState extends State<StaffAssetList> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF5E0B06),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>StaffHome())),
+        ),
+        title: Text('Manage Rooms', style: GoogleFonts.alice(color: Colors.white)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_circle, color: Colors.white, size: 32),
+            onPressed: () => _showLogoutDialog(context),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const StaffNavbar(showBack: true, title: 'Manage Rooms'),
-              const SizedBox(height: 20),
-
-              // list view
+              
               Expanded(
                 child: ListView(
                   children: [
-                    _buildRoomCard(
+                  _buildRoomCard(
+                      context: context, 
                       imagePath: 'images/roomA101.jpg',
                       roomName: 'Room A101',
                       date: DateTime.now(),
@@ -40,6 +54,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
                       ],
                     ),
                     _buildRoomCard(
+                      context: context,
                       imagePath: 'images/roomA102.jpg',
                       roomName: 'Room A102',
                       date: DateTime.now(),
@@ -51,6 +66,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
                       ],
                     ),
                     _buildRoomCard(
+                      context: context,
                       imagePath: 'images/roomB201.jpg',
                       roomName: 'Room B201',
                       date: DateTime.now(),
@@ -62,6 +78,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
                       ],
                     ),
                     _buildRoomCard(
+                      context: context,
                       imagePath: 'images/roomB202.jpg',
                       roomName: 'Room B202',
                       date: DateTime.now(),
@@ -73,6 +90,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
                       ],
                     ),
                     _buildRoomCard(
+                      context: context,
                       imagePath: 'images/roomC101.jpg',
                       roomName: 'Room C101',
                       date: DateTime.now(),
@@ -84,6 +102,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
                       ],
                     ),
                     _buildRoomCard(
+                      context: context,
                       imagePath: 'images/roomC102.jpg',
                       roomName: 'Room C102',
                       date: DateTime.now(),
@@ -104,14 +123,15 @@ class _StaffAssetListState extends State<StaffAssetList> {
     );
   }
 
-  // ✅ แก้ชนิดข้อมูล date → DateTime
+
   Widget _buildRoomCard({
+    required BuildContext context,
     required String imagePath,
     required String roomName,
-    required DateTime date,
-    required List<Map<String, String>> timeSlots,
+    required List<Map<String, String>> timeSlots, 
+    required DateTime date, 
   }) {
-    // ✅ แปลงวันที่ให้อ่านง่าย
+
     String formattedDate = '${date.day}/${date.month}/${date.year}';
 
     return Container(
@@ -125,10 +145,9 @@ class _StaffAssetListState extends State<StaffAssetList> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // image
           Container(
-            width: 100,
-            height: 120,
+            width: 120,
+            height: 160,
             decoration: BoxDecoration(
               color: Colors.grey[300],
               borderRadius: BorderRadius.circular(10),
@@ -139,11 +158,9 @@ class _StaffAssetListState extends State<StaffAssetList> {
             ),
           ),
           const SizedBox(width: 16),
-
-          // info
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   roomName,
@@ -153,8 +170,10 @@ class _StaffAssetListState extends State<StaffAssetList> {
                   ),
                 ),
                 const SizedBox(height: 8),
+
+                
                 Text(
-                  'Date: $formattedDate', // ✅ ใช้วันที่ที่ฟอร์แมตแล้ว
+                  'Date: $formattedDate',
                   style: GoogleFonts.alice(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -162,7 +181,6 @@ class _StaffAssetListState extends State<StaffAssetList> {
                 ),
                 const SizedBox(height: 10),
 
-                // list times
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: timeSlots.map((slot) {
@@ -174,26 +192,27 @@ class _StaffAssetListState extends State<StaffAssetList> {
                       case 'Pending':
                         color = Colors.amber[800]!;
                         break;
-                      case 'Disabled': // ✅ ใช้ Disabled ให้ตรงกัน
+                      case 'Disabled': 
                         color = Colors.red;
                         break;
                       default:
                         color = Colors.black;
                     }
                     return Text(
-                      '${slot['time']}  ${slot['status']}',
+                      '${slot['time']}  ${slot['status']}',
                       style: GoogleFonts.alice(fontSize: 16, color: color),
                     );
                   }).toList(),
                 ),
                 const SizedBox(height: 10),
 
-                // buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(
-                      onPressed: () => _showEditDialog(context, roomName),
+                      onPressed: () {
+                        _showEditDialog(context, roomName, imagePath);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.grey[800],
                         shape: const StadiumBorder(),
@@ -204,9 +223,10 @@ class _StaffAssetListState extends State<StaffAssetList> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () =>
-                          _showDisableDialog(context, roomName, timeSlots),
+                     ElevatedButton(
+                      onPressed: () {
+                        _showDisableDialog(context, roomName);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         shape: const StadiumBorder(),
@@ -226,72 +246,136 @@ class _StaffAssetListState extends State<StaffAssetList> {
     );
   }
 
-  // ----------- Edit Popup ----------
-  void _showEditDialog(BuildContext context, String roomName) {
-    TextEditingController nameController = TextEditingController(
-      text: roomName,
-    );
+
+  void _showEditDialog(BuildContext context, String roomName, String currentImagePath) {
+    final TextEditingController nameController = TextEditingController(text: roomName);
+    String? selectedImagePath = currentImagePath; 
 
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Center(
-            child: Text(
-              'EDIT',
-              style: GoogleFonts.alice(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+              title: Center(
+                child: Text(
+                  'EDIT',
+                  style: GoogleFonts.alice(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _dialogButton('Save Name', () {}),
-                  _dialogButton('Save Image', () {}),
-                ],
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.alice(color: Colors.black), 
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30), 
+                          borderSide: const BorderSide(color: Colors.black, width: 2),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: const BorderSide(color: Colors.black, width: 2),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: const BorderSide(color: Colors.black, width: 2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 80, 
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(12),
+                            image: selectedImagePath != null
+                              ? DecorationImage(
+                                  image: AssetImage(selectedImagePath!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                          ),
+                          child: selectedImagePath == null 
+                            ? Icon(Icons.image, size: 40, color: Colors.grey[600]) 
+                            : null,
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black, 
+                            shape: const StadiumBorder(),
+                            padding: const EdgeInsets.symmetric(horizontal: 16)
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              selectedImagePath = 'images/roomA102.jpg'; 
+                            });
+                          },
+                          child: Text(
+                            'Upload Image',
+                            style: GoogleFonts.alice(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            shape: const StadiumBorder(),
+                            padding: const EdgeInsets.symmetric(horizontal: 30),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(dialogContext);
+                          },
+                          child: Text('Save', style: GoogleFonts.alice(color: Colors.white)),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            shape: const StadiumBorder(),
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                          ),
+                          onPressed: () => Navigator.pop(dialogContext),
+                          child: Text('Cancel', style: GoogleFonts.alice(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _dialogButton('Save', () => Navigator.pop(context)),
-                  _dialogButton('Cancel', () => Navigator.pop(context)),
-                ],
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 
-  // ----------- Disable Popup ----------
+
   void _showDisableDialog(
     BuildContext context,
     String roomName,
-    List<Map<String, String>> timeSlots,
   ) {
-    List<bool> selected = List.filled(timeSlots.length, false);
-
     showDialog(
       context: context,
       builder: (context) {
@@ -309,117 +393,53 @@ class _StaffAssetListState extends State<StaffAssetList> {
               ),
             ),
           ),
-          content: StatefulBuilder(
-            builder: (context, setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'You are disabling $roomName for the following time slots:',
-                    style: GoogleFonts.alice(fontSize: 14),
-                  ),
-                  const SizedBox(height: 10),
-                  Column(
-                    children: List.generate(timeSlots.length, (index) {
-                      final slot = timeSlots[index];
-                      Color color;
-                      switch (slot['status']) {
-                        case 'Free':
-                          color = Colors.green;
-                          break;
-                        case 'Pending':
-                          color = Colors.amber[800]!;
-                          break;
-                        case 'Disabled':
-                          color = Colors.red;
-                          break;
-                        default:
-                          color = Colors.black;
-                      }
-                      return CheckboxListTile(
-                        activeColor: Colors.black,
-                        controlAffinity: ListTileControlAffinity.leading,
-                        title: Text(
-                          '${slot['time']} ${slot['status']}',
-                          style: GoogleFonts.alice(color: color),
-                        ),
-                        value: selected[index],
-                        onChanged: (val) {
-                          setState(() {
-                            selected[index] = val!;
-                          });
-                        },
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    'When disabled, this room will not be available for booking.',
-                    style: GoogleFonts.alice(fontSize: 12),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          List<String> selectedTimes = [];
-                          for (int i = 0; i < timeSlots.length; i++) {
-                            if (selected[i]) {
-                              selectedTimes.add(timeSlots[i]['time']!);
-                            }
-                          }
-
-                          Navigator.pop(context);
-
-                          if (selectedTimes.isNotEmpty) {
-                            _showSuccessDialog(
-                              context,
-                              roomName,
-                              selectedTimes,
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green[800],
-                          shape: const StadiumBorder(),
-                        ),
-                        child: Text(
-                          'Confirm',
-                          style: GoogleFonts.alice(color: Colors.white),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: const StadiumBorder(),
-                        ),
-                        child: Text(
-                          'Cancel',
-                          style: GoogleFonts.alice(color: Colors.black),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              );
-            },
+          content: Text(
+            'Are you sure you want to disable $roomName?', // (แก้ไขข้อความ)
+            textAlign: TextAlign.center,
+            style: GoogleFonts.alice(fontSize: 16, color: Colors.red), // (สีแดง)
           ),
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
+          actions: [
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                side: BorderSide(color: Colors.grey[400]!),
+                shape: const StadiumBorder(),
+              ),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.alice(color: Colors.black),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                
+                _showSuccessDialog( 
+                  context,
+                  roomName,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red[700], 
+                shape: const StadiumBorder(),
+              ),
+              child: Text(
+                'Confirm', // (แก้ไขข้อความ)
+                style: GoogleFonts.alice(color: Colors.white),
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
-  // ✅ Popup success
   void _showSuccessDialog(
     BuildContext context,
     String roomName,
-    List<String> selectedTimes,
   ) {
-    String times = selectedTimes.join(', ');
-
     showDialog(
       context: context,
       builder: (context) {
@@ -435,7 +455,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "'$roomName'\nTime: $times\nhas been disabled successfully.",
+                "'$roomName'\nhas been disabled successfully.",
                 textAlign: TextAlign.center,
                 style: GoogleFonts.alice(
                   fontSize: 16,
@@ -461,16 +481,49 @@ class _StaffAssetListState extends State<StaffAssetList> {
     );
   }
 
-  // Helper for dialog buttons
-  Widget _dialogButton(String text, VoidCallback onPressed) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.black,
-        shape: const StadiumBorder(),
-      ),
-      child: Text(text, style: GoogleFonts.alice(color: Colors.white)),
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            'Are you sure you \nwant to logout?',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.alice(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HomeScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: const StadiumBorder(),
+              ),
+              child: Text(
+                'Logout',
+                style: GoogleFonts.alice(color: Colors.white, fontSize: 15),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.alice(color: Colors.black, fontSize: 15),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
-
 }
+
