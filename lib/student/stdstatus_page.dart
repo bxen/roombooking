@@ -1,10 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:roombooking/student/student_home.dart';
 import 'package:roombooking/student/widgets/student_navbar.dart';
+import 'package:roombooking/student/student_home.dart';
+import 'package:roombooking/services/api_client.dart';
+import 'package:roombooking/services/session.dart';
 
-class StdstatusPage extends StatelessWidget {
+class StdstatusPage extends StatefulWidget {
   const StdstatusPage({super.key});
+
+  @override
+  State<StdstatusPage> createState() => _StdstatusPageState();
+}
+
+class _StdstatusPageState extends State<StdstatusPage> {
+  late Future<List<Map<String, dynamic>>> _pending;
+
+  @override
+  void initState() {
+    super.initState();
+    _pending = _fetchPending();
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchPending() async {
+    final res =
+        await api.get(
+              '/api/student/bookings',
+              query: {
+                'scope': 'pending',
+                'user_id': Session.userId, // << ส่ง user_id
+              },
+            )
+            as List<dynamic>;
+    return res.cast<Map<String, dynamic>>();
+  }
+
+  Future<void> _cancel(int bookingId) async {
+    await api.post(
+      '/api/bookings/$bookingId/cancel',
+      body: {
+        'user_id': Session.userId, // << ส่ง user_id
+      },
+    );
+    setState(() => _pending = _fetchPending());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +52,6 @@ class StdstatusPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ---------- APP BAR ----------
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: StudentNavbar(
@@ -23,32 +60,143 @@ class StdstatusPage extends StatelessWidget {
                 profileIconSize: 28,
               ),
             ),
-
-            // ---------- BODY ----------
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  _buildBookingCard(
-                    context,
-                    imagePath: 'images/roomA101.jpg',
-                    room: 'A101',
-                    date: '20 Oct 2025',
-                    time: '10:00 - 12:00',
-                    status: 'Approved',
-                    objective: 'Presentation practice',
-                  ),
-                  const SizedBox(height: 16),
-                  _buildBookingCard(
-                    context,
-                    imagePath: 'images/roomC101.jpg',
-                    room: 'C101',
-                    date: '21 Oct 2025',
-                    time: '08:00 - 10:00',
-                    status: 'Pending',
-                    objective: 'Meeting',
-                  ),
-                ],
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: _pending,
+                builder: (_, snap) {
+                  if (snap.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snap.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error: ${snap.error}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
+                  final list = snap.data ?? [];
+                  if (list.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'No pending bookings.',
+                            style: GoogleFonts.alice(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          TextButton(
+                            onPressed: () {
+                              final home = context
+                                  .findAncestorStateOfType<StudentHomeState>();
+                              if (home != null) home.changeTab(1);
+                            },
+                            child: Text(
+                              'Book a room',
+                              style: GoogleFonts.alice(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemCount: list.length,
+                    itemBuilder: (_, i) {
+                      final b = list[i];
+                      final id = (b['booking_id'] as num).toInt();
+                      final img = b['image_url'] as String?;
+                      final room = b['room_name'] as String;
+                      final date = b['booking_date'] as String;
+                      final start = (b['start_time'] as String).substring(0, 5);
+                      final end = (b['end_time'] as String).substring(0, 5);
+                      final objective = b['purpose'] as String? ?? '-';
+
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        color: const Color(0xFFF2F1ED),
+                        elevation: 3,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: img == null
+                                    ? const SizedBox.shrink()
+                                    : Image.asset(
+                                        img,
+                                        height: 200,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
+                              const SizedBox(height: 10),
+                              _info('Room', room),
+                              _info('Date', date),
+                              _info('Time', '$start - $end'),
+                              _info('Objective', objective),
+                              const SizedBox(height: 12),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.yellow,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      'Pending',
+                                      style: GoogleFonts.alice(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      minimumSize: const Size(100, 40),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    onPressed: () => _showConfirmDialog(
+                                      context,
+                                      () => _cancel(id),
+                                    ),
+                                    child: Text(
+                                      'Cancel',
+                                      style: GoogleFonts.alice(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],
@@ -57,145 +205,15 @@ class StdstatusPage extends StatelessWidget {
     );
   }
 
-  // ---------- Booking Card ----------
-  static Widget _buildBookingCard(
-    BuildContext context, {
-    required String imagePath,
-    required String room,
-    required String date,
-    required String time,
-    required String status,
-    required String objective,
-  }) {
-    final statusInfo = _getStatusInfo(status);
+  Widget _info(String k, String v) => Padding(
+    padding: const EdgeInsets.only(bottom: 4),
+    child: Text(
+      '$k : $v',
+      style: GoogleFonts.alice(color: const Color(0xFF161616), fontSize: 16),
+    ),
+  );
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: const Color(0xFFF2F1ED),
-      elevation: 3,
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ---------- Image ----------
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.asset(
-                imagePath,
-                height: 250,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            // ---------- Info ----------
-            _buildInfo('Room', room),
-            _buildInfo('Date', date),
-            _buildInfo('Time', time),
-            _buildInfo('Objective', objective),
-            const SizedBox(height: 12),
-
-            // ---------- Status & Button ----------
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: statusInfo.color,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    status,
-                    style: GoogleFonts.alice(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 20),
-                _buildActionButton(context, status),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ---------- Info Text ----------
-  static Widget _buildInfo(String label, String value, {Color? color}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Text(
-        '$label : $value',
-        style: GoogleFonts.alice(
-          color: color ?? const Color(0xFF161616),
-          fontSize: 16,
-          height: 1.3,
-        ),
-      ),
-    );
-  }
-
-  // ---------- Action Button ----------
-  static Widget _buildActionButton(BuildContext context, String status) {
-    switch (status) {
-      case 'Pending':
-        return ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            minimumSize: const Size(100, 40),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          onPressed: () => _showConfirmDialog(context),
-          child: Text(
-            'Cancel',
-            style: GoogleFonts.alice(color: Colors.black, fontSize: 16),
-          ),
-        );
-      case 'Approved':
-        return ElevatedButton(
-          onPressed: null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            minimumSize: const Size(100, 40),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: Text(
-            'Cancel',
-            style: GoogleFonts.alice(color: Colors.grey, fontSize: 16),
-          ),
-        );
-      default:
-        return const SizedBox();
-    }
-  }
-
-  // ---------- Status Info ----------
-  static _StatusInfo _getStatusInfo(String status) {
-    switch (status) {
-      case 'Pending':
-        return _StatusInfo(color: Colors.yellow);
-      case 'Reject':
-        return _StatusInfo(color: Colors.red);
-      case 'Approved':
-        return _StatusInfo(color: Colors.blue);
-      default:
-        return _StatusInfo(color: Colors.grey);
-    }
-  }
-
-  // ---------- Confirm Dialog ----------
-  static void _showConfirmDialog(BuildContext context) {
+  void _showConfirmDialog(BuildContext context, Future<void> Function() run) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -214,13 +232,11 @@ class StdstatusPage extends StatelessWidget {
         actions: [
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green[800]),
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-                MaterialPageRoute(
-                  builder: (_) => const StudentHome(initialIndex: 3),
-                ),
-                (route) => false,
-              );
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await run();
+              if (!mounted) return;
+              setState(() => _pending = _fetchPending());
             },
             child: Text(
               'Confirm',
@@ -228,7 +244,7 @@ class StdstatusPage extends StatelessWidget {
             ),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(ctx),
             child: Text(
               'Cancel',
               style: GoogleFonts.alice(color: Colors.black87),
@@ -238,10 +254,4 @@ class StdstatusPage extends StatelessWidget {
       ),
     );
   }
-}
-
-// ---------- Helper Class ----------
-class _StatusInfo {
-  final Color color;
-  _StatusInfo({required this.color});
 }
