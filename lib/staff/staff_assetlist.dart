@@ -15,6 +15,16 @@ class StaffAssetList extends StatefulWidget {
 class _StaffAssetListState extends State<StaffAssetList> {
   late Future<List<Map<String, dynamic>>> _rooms;
   final _date = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  static const _assetImages = <String>[
+  'images/roomA101.jpg',
+  'images/roomA102.jpg',
+  'images/roomB201.jpg',
+  'images/roomB202.jpg',
+  'images/roomC101.jpg',
+  'images/roomC102.jpg',
+  'images/roomC103.jpg',
+  'images/roomscreen.jpg',
+];
 
   @override
   void initState() {
@@ -234,6 +244,11 @@ class _StaffAssetListState extends State<StaffAssetList> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        shape: const StadiumBorder(),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                      ),
                       onPressed: () => _showEditDialog(
                         context,
                         roomId,
@@ -241,12 +256,8 @@ class _StaffAssetListState extends State<StaffAssetList> {
                         imagePath,
                         onChanged,
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[800],
-                        shape: const StadiumBorder(),
-                      ),
                       child: Text(
-                        'EDIT',
+                        'Edit',
                         style: GoogleFonts.alice(color: Colors.white),
                       ),
                     ),
@@ -297,7 +308,9 @@ class _StaffAssetListState extends State<StaffAssetList> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             Future<void> save() async {
-              setState(() { saving = true; });
+              setState(() {
+                saving = true;
+              });
               try {
                 await api.patch(
                   '/api/staff/rooms/$roomId',
@@ -404,9 +417,69 @@ class _StaffAssetListState extends State<StaffAssetList> {
                             shape: const StadiumBorder(),
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                           ),
-                          onPressed: () => setState(
-                            () => selectedImagePath = 'images/roomA102.jpg',
-                          ),
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              showDragHandle: true,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(18),
+                                ),
+                              ),
+                              builder: (ctx) {
+                                return SafeArea(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: GridView.builder(
+                                      itemCount: _assetImages.length,
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 3,
+                                            mainAxisSpacing: 8,
+                                            crossAxisSpacing: 8,
+                                            childAspectRatio: 1,
+                                          ),
+                                      itemBuilder: (_, i) {
+                                        final path = _assetImages[i];
+                                        return InkWell(
+                                          onTap: () {
+                                            // ใช้ setState ของ StatefulBuilder (ตัวแปร setState ใน scope นี้)
+                                            setState(
+                                              () => selectedImagePath = path,
+                                            );
+                                            Navigator.pop(ctx);
+                                          },
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            child: Stack(
+                                              fit: StackFit.expand,
+                                              children: [
+                                                Image.asset(
+                                                  path,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                                if (selectedImagePath == path)
+                                                  Container(
+                                                    color: Colors.black45,
+                                                    child: const Icon(
+                                                      Icons.check_circle,
+                                                      color: Colors.white,
+                                                      size: 28,
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
                           child: Text(
                             'Upload Image',
                             style: GoogleFonts.alice(color: Colors.white),
