@@ -14,6 +14,12 @@ class StdstatusPage extends StatefulWidget {
 
 class _StdstatusPageState extends State<StdstatusPage> {
   late Future<List<Map<String, dynamic>>> _pending;
+  void _refreshNow() {
+    setState(() {
+      // <-- ใช้บล็อค
+      _pending = _fetchPending();
+    });
+  }
 
   @override
   void initState() {
@@ -25,23 +31,60 @@ class _StdstatusPageState extends State<StdstatusPage> {
     final res =
         await api.get(
               '/api/student/bookings',
-              query: {
-                'scope': 'pending',
-                'user_id': Session.userId, // << ส่ง user_id
-              },
+              query: {'scope': 'pending', 'user_id': Session.userId},
             )
             as List<dynamic>;
     return res.cast<Map<String, dynamic>>();
   }
 
+  Future<void> _refresh() async {
+    if (!mounted) return;
+    setState(() {
+      // <-- ใช้บล็อค
+      _pending = _fetchPending();
+    });
+    // ไม่แตะ UI เพิ่มเติม ให้ FutureBuilder ได้ future ใหม่แล้วรีเพนต์เอง
+  }
+
   Future<void> _cancel(int bookingId) async {
-    await api.post(
-      '/api/bookings/$bookingId/cancel',
-      body: {
-        'user_id': Session.userId, // << ส่ง user_id
-      },
-    );
-    setState(() => _pending = _fetchPending());
+    try {
+      await api.post(
+        '/api/bookings/$bookingId/cancel',
+        body: {'user_id': Session.userId},
+      );
+      if (!mounted) return;
+      _refreshNow(); // รีเฟรชทันที
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Booking cancelled', style: GoogleFonts.alice()),
+        ),
+      );
+    } catch (e) {
+      final msg = e.toString();
+      // เซิร์ฟเวอร์ส่งเป็นข้อความธรรมดา -> ถือว่าสำเร็จ
+      if (msg.contains('FormatException') ||
+          msg.contains('Unexpected character')) {
+        if (!mounted) return;
+        _refreshNow();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Booking cancelled', style: GoogleFonts.alice()),
+          ),
+        );
+        return;
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              'Cancel failed: $e',
+              style: GoogleFonts.alice(color: Colors.white),
+            ),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -234,9 +277,9 @@ class _StdstatusPageState extends State<StdstatusPage> {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green[800]),
             onPressed: () async {
               Navigator.pop(ctx);
-              await run();
+              await run(); // เรียก _cancel
               if (!mounted) return;
-              setState(() => _pending = _fetchPending());
+              _refreshNow(); // ย้ำอีกชั้นให้ FutureBuilder ได้ future ใหม่แน่ ๆ
             },
             child: Text(
               'Confirm',

@@ -1,29 +1,41 @@
 // lib/services/api_client.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../config.dart';  // << เพิ่ม
+import '../config.dart'; // << เพิ่ม
 
 class _Api {
   // ใช้ค่าเดียวกับ config.dart
   final String baseUrl = AppConfig.baseUrl;
 
   Future<dynamic> get(String path, {Map<String, dynamic>? query}) async {
-    final uri = Uri.parse('$baseUrl$path').replace(
-      queryParameters: query?.map((k, v) => MapEntry(k, v.toString())),
-    );
+    final qp = {
+      ...?query,
+      '_': DateTime.now().millisecondsSinceEpoch.toString(), // กัน cache
+    };
+    final uri = Uri.parse(
+      '$baseUrl$path',
+    ).replace(queryParameters: qp.map((k, v) => MapEntry(k, v.toString())));
     final res = await http.get(uri, headers: _headers());
     return _handle(res);
   }
 
   Future<dynamic> post(String path, {Map<String, dynamic>? body}) async {
     final uri = Uri.parse('$baseUrl$path');
-    final res = await http.post(uri, headers: _headers(), body: jsonEncode(body ?? {}));
+    final res = await http.post(
+      uri,
+      headers: _headers(),
+      body: jsonEncode(body ?? {}),
+    );
     return _handle(res);
   }
 
   Future<dynamic> patch(String path, {Map<String, dynamic>? body}) async {
     final uri = Uri.parse('$baseUrl$path');
-    final res = await http.patch(uri, headers: _headers(), body: jsonEncode(body ?? {}));
+    final res = await http.patch(
+      uri,
+      headers: _headers(),
+      body: jsonEncode(body ?? {}),
+    );
     return _handle(res);
   }
 
@@ -39,12 +51,29 @@ class _Api {
 
   Map<String, String> _headers() => {'Content-Type': 'application/json'};
 
+  // แปลง response เป็น JSON ถ้าเป็น JSON จริง ๆ
+  // ถ้าไม่ใช่ JSON ให้คืนเป็นข้อความธรรมดา (String)
+  dynamic _safeDecode(http.Response res) {
+    final text = utf8.decode(res.bodyBytes);
+    final ct = (res.headers['content-type'] ?? '').toLowerCase();
+    final isJson = ct.contains('application/json');
+
+    if (!isJson) return text; // server ตอบเป็นข้อความธรรมดา
+    if (text.isEmpty) return null; // ไม่มีเนื้อหา
+    return jsonDecode(text); // ปลอดภัยกว่าการ decode โดยตรงจาก res.body
+  }
+
   dynamic _handle(http.Response res) {
-    if (res.statusCode >= 200 && res.statusCode < 300) {
-      if (res.body.isEmpty) return null;
-      return jsonDecode(res.body);
+    final ok = res.statusCode >= 200 && res.statusCode < 300;
+
+    if (ok) {
+      if (res.statusCode == 204 || res.body.isEmpty) return null; // no content
+      return _safeDecode(res);
     }
-    throw 'HTTP ${res.statusCode}: ${res.body}';
+
+    // error: ดึงข้อความแบบ utf8 (กันภาษาต่างๆเพี้ยน)
+    final text = utf8.decode(res.bodyBytes);
+    throw 'HTTP ${res.statusCode}: $text';
   }
 }
 
