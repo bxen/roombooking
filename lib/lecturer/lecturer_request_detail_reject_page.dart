@@ -16,7 +16,11 @@ class LecturerRequestDetailRejectPage extends StatelessWidget {
           title: const Text('Booking Requests'),
           actions: [
             IconButton(
-              icon: const Icon(Icons.account_circle, color: Colors.white, size: 32),
+              icon: const Icon(
+                Icons.account_circle,
+                color: Colors.white,
+                size: 32,
+              ),
               onPressed: () => showLecturerLogoutDialog(context),
             ),
           ],
@@ -48,12 +52,18 @@ class LecturerRequestDetailRejectPage extends StatelessWidget {
                     const SizedBox(height: 8),
                     TextField(
                       controller: controller,
+                      autofocus: true,
+                      style: GoogleFonts.alice(color: Colors.black),
                       maxLines: 3,
-                      decoration: const InputDecoration(hintText: 'Optional reason'),
+                      decoration: const InputDecoration(
+                        hintText: 'Optional reason',
+                      ),
                     ),
                     const SizedBox(height: 12),
                     ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
                       onPressed: () => Navigator.pop(context),
                       child: const Text('Confirm Reject'),
                     ),

@@ -1,14 +1,11 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-import 'package:roombooking/config.dart';
+import '../config.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
-
   @override
   State<RegisterPage> createState() => _RegisterPageState();
 }
@@ -35,56 +32,34 @@ class _RegisterPageState extends State<RegisterPage> {
     final confirmPassword = _confirmPasswordController.text;
 
     if (username.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      _showErrorDialog("Please fill all fields");
-      return;
+      return _showErrorDialog("Please fill all fields");
     }
-
     if (password != confirmPassword) {
-      _showErrorDialog("Passwords do not match");
-      return;
+      return _showErrorDialog("Passwords do not match");
     }
 
     try {
-      final response = await http.post(
-        // Uri.parse('${AppConfig.baseUrl}/login'),
+      final res = await http.post(
         Uri.parse('${AppConfig.baseUrl}/register'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'username': username,
-          'email': email,
-          'password': password,
-        }),
+        body: jsonEncode({'username': username, 'email': email, 'password': password}),
       );
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Registration successful!")),
-        );
+      if (res.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Registration successful!")));
         Navigator.pushReplacementNamed(context, '/login');
       } else {
-        _showErrorDialog(response.body);
+        _showErrorDialog(res.body.isEmpty ? 'Registration failed' : res.body);
       }
     } catch (e) {
       _showErrorDialog("Registration error: $e");
     }
   }
 
-  void _showErrorDialog(String message) async {
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Error"),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
+  void _showErrorDialog(String message) {
+    showDialog(context: context, builder: (_) => AlertDialog(
+      title: const Text("Error"), content: Text(message),
+      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))],
+    ));
   }
 
   @override
@@ -93,120 +68,37 @@ class _RegisterPageState extends State<RegisterPage> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 80),
-              Text(
-                "Let's get \nstarted",
-                style: GoogleFonts.alice(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const SizedBox(height: 80),
+            Text("Let's get \nstarted", style: GoogleFonts.alice(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 60),
+            TextField(controller: _usernameController,  style: GoogleFonts.alice(color: Colors.black),decoration: _i('Username')), const SizedBox(height: 15),
+            TextField(controller: _emailController, style: GoogleFonts.alice(color: Colors.black),decoration: _i('Email')), const SizedBox(height: 15),
+            TextField(controller: _passwordController, style: GoogleFonts.alice(color: Colors.black),obscureText: true, decoration: _i('Password')), const SizedBox(height: 15),
+            TextField(controller: _confirmPasswordController, style: GoogleFonts.alice(color: Colors.black),obscureText: true, decoration: _i('Confirm Password')), const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity, height: 55,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
+                onPressed: _register,
+                child: Text("Sign Up", style: GoogleFonts.alice(color: Colors.white, fontSize: 20)),
               ),
-              const SizedBox(height: 60),
-              TextField(
-                controller: _usernameController,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Username',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                style: GoogleFonts.alice(color: Colors.black),
-              ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Email',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                style: GoogleFonts.alice(color: Colors.black),
-              ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Password',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                style: GoogleFonts.alice(color: Colors.black),
-              ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: _confirmPasswordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: 'Confirm Password',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                style: GoogleFonts.alice(color: Colors.black),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
-                  onPressed: _register,
-                  child: Text(
-                    "Sign Up",
-                    style: GoogleFonts.alice(color: Colors.white, fontSize: 20),
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Already have an account?",
-                    style: GoogleFonts.alice(color: Colors.white70, fontSize: 16),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/login'),
-                    child: Text(
-                      'LogIn',
-                      style: GoogleFonts.alice(
-                        color: Colors.white70,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
+            ),
+            const Spacer(),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Text("Already have an account?", style: GoogleFonts.alice(color: Colors.white70, fontSize: 16)),
+              TextButton(onPressed: () => Navigator.pushNamed(context, '/login'),
+                child: Text('LogIn', style: GoogleFonts.alice(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold))),
+            ]),
+            const SizedBox(height: 16),
+          ]),
         ),
       ),
     );
   }
+
+  InputDecoration _i(String hint) => InputDecoration(
+    filled: true, fillColor: Colors.white, hintText: hint,
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
+  );
 }

@@ -1,8 +1,4 @@
-// set ip in your own computer!!!
-// http://xxx.xxx.xx.x:3000
-// class AppConfig {
-//   static const String baseUrl = 'http://192.168.175.1:3000';
-// }
 class AppConfig {
-  static const String baseUrl = 'http://192.168.80.1:3000';
+  // Android Emulator
+  static const String baseUrl = 'http://10.0.2.2:3000';
 }

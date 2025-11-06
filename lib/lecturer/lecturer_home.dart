@@ -4,12 +4,28 @@ import 'package:google_fonts/google_fonts.dart';
 import 'lecturer_theme.dart';
 import 'lecturer_widgets.dart';
 import 'lecturer_booking_requests_list_page.dart';
+import '../services/api_client.dart';
 
 class LecturerHome extends StatelessWidget {
   const LecturerHome({super.key});
 
   static const _r = 20.0; // radius
   static const _g = 16.0; // gap
+
+  Future<Map<String, int>> _fetchSummary() async {
+    final m = await api.get('/api/lecturer/summary') as Map<String, dynamic>;
+    return {
+      'available': (m['available'] as num).toInt(),
+      'pending': (m['pending'] as num).toInt(),
+      'booked': (m['booked'] as num).toInt(),
+      'disabled': (m['disabled'] as num).toInt(),
+    };
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchPendingTop3() async {
+    final list = await api.get('/api/lecturer/requests') as List<dynamic>;
+    return list.cast<Map<String, dynamic>>().take(3).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +67,7 @@ class LecturerHome extends StatelessWidget {
                           const SizedBox(height: _g),
 
                           // Dashboard Section
+                          // Dashboard Section
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
@@ -58,60 +75,79 @@ class LecturerHome extends StatelessWidget {
                               color: const Color(0xFFF5F5F5),
                               borderRadius: BorderRadius.circular(_r),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Dashboard',
-                                  style: GoogleFonts.alice(
-                                    color: Colors.black87,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                                const SizedBox(height: 14),
-
-                                // 2x2 Card Row
-                                Row(
+                            child: FutureBuilder<Map<String, int>>(
+                              future: _fetchSummary(),
+                              builder: (_, snap) {
+                                final m =
+                                    snap.data ??
+                                    const {
+                                      'available': 0,
+                                      'pending': 0,
+                                      'booked': 0,
+                                      'disabled': 0,
+                                    };
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(
-                                      child: _dashCard(
-                                        'Free',
-                                        '10',
-                                        Colors.green,
+                                    Text(
+                                      'Dashboard',
+                                      style: GoogleFonts.alice(
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 20,
                                       ),
                                     ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: _dashCard(
-                                        'Pending',
-                                        '7',
-                                        Colors.orange,
-                                      ),
+                                    const SizedBox(height: 14),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _dashCard(
+                                            'Avaliable',
+                                            '${m['available']}',
+                                            Colors.green,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: _dashCard(
+                                            'Pending',
+                                            '${m['pending']}',
+                                            Colors.orange,
+                                          ),
+                                        ),
+                                      ],
                                     ),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _dashCard(
+                                            'Booked',
+                                            '${m['booked']}',
+                                            Colors.redAccent,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: _dashCard(
+                                            'Disable',
+                                            '${m['disabled']}',
+                                            Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    if (snap.connectionState ==
+                                        ConnectionState.waiting)
+                                      const Padding(
+                                        padding: EdgeInsets.only(top: 10),
+                                        child: LinearProgressIndicator(
+                                          minHeight: 2,
+                                        ),
+                                      ),
                                   ],
-                                ),
-                                const SizedBox(height: 12),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _dashCard(
-                                        'Reserved',
-                                        '3',
-                                        Colors.redAccent,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: _dashCard(
-                                        'Disable',
-                                        '5',
-                                        Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                );
+                              },
                             ),
                           ),
 
@@ -179,13 +215,12 @@ class LecturerHome extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5), // Same color as Dashboard
-        borderRadius: BorderRadius.circular(_r), // Use same radius
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(_r),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header (Title + View All button)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -199,53 +234,72 @@ class LecturerHome extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  // Navigate to all requests page
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const LecturerBookingRequestsListPage(),
+                      builder: (_) => const LecturerBookingRequestsListPage(),
                     ),
                   );
                 },
                 child: Text(
                   'View All',
                   style: GoogleFonts.alice(
-                    color: Theme.of(context).primaryColor, // Use primary theme color
+                    color: Theme.of(context).primaryColor,
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
                 ),
-              )
+              ),
             ],
           ),
           const SizedBox(height: 10),
-
-          // --- MOCK DATA ---
-          // In the future, this section will fetch real data
-          _buildRequestItem(
-            context,
-            'Room A101',
-            '1 Nov 2025 (10:00 - 12:00)',
+          FutureBuilder<List<Map<String, dynamic>>>(
+            future: _fetchPendingTop3(),
+            builder: (_, snap) {
+              if (snap.connectionState == ConnectionState.waiting) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: LinearProgressIndicator(minHeight: 2),
+                );
+              }
+              final list = snap.data ?? [];
+              if (list.isEmpty) {
+                return Text(
+                  'No pending requests',
+                  style: GoogleFonts.alice(color: Colors.black54),
+                );
+              }
+              List<Widget> children = [];
+              for (int i = 0; i < list.length; i++) {
+                final b = list[i];
+                final room = b['room_name'] as String? ?? '-';
+                final date = (b['booking_date'] as String?) ?? '';
+                final start =
+                    (b['start_time'] as String?)?.substring(0, 5) ?? '--:--';
+                final end =
+                    (b['end_time'] as String?)?.substring(0, 5) ?? '--:--';
+                children.add(
+                  _buildRequestItem(context, room, '$date ($start - $end)'),
+                );
+                if (i != list.length - 1) {
+                  children.add(
+                    const Divider(height: 16, indent: 16, endIndent: 16),
+                  );
+                }
+              }
+              return Column(children: children);
+            },
           ),
-          const Divider(height: 16, indent: 16, endIndent: 16),
-          _buildRequestItem(
-            context,
-            'Room C201',
-            '1 Nov 2025 (13:00 - 15:00)',
-          ),
-          const Divider(height: 16, indent: 16, endIndent: 16),
-          _buildRequestItem(
-            context,
-            'Room B102',
-            '2 Nov 2025 (09:00 - 11:00)',
-          ),
-          // --- END MOCK DATA ---
         ],
       ),
     );
   }
 
   // request item
-  Widget _buildRequestItem(BuildContext context, String title, String subtitle) {
+  Widget _buildRequestItem(
+    BuildContext context,
+    String title,
+    String subtitle,
+  ) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 4),
       leading: Icon(Icons.hourglass_top_rounded, color: Colors.orange.shade700),
@@ -259,14 +313,16 @@ class LecturerHome extends StatelessWidget {
       ),
       subtitle: Text(
         subtitle,
-        style: GoogleFonts.alice(
-          color: Colors.black54,
-          fontSize: 14,
-        ),
+        style: GoogleFonts.alice(color: Colors.black54, fontSize: 14),
       ),
       trailing: Icon(Icons.chevron_right, color: Colors.grey.shade400),
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>LecturerBookingRequestsListPage()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LecturerBookingRequestsListPage(),
+          ),
+        );
       },
     );
   }

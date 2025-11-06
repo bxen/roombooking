@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'lecturer_theme.dart';
 import 'lecturer_widgets.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../services/api_client.dart';
+import 'package:intl/intl.dart';
 
 class LecturerBookingHistoryListPage extends StatefulWidget {
   const LecturerBookingHistoryListPage({super.key});
@@ -14,6 +17,15 @@ class _LecturerBookingHistoryListPageState
     extends State<LecturerBookingHistoryListPage> {
   String selectedFilter = 'All';
   String searchQuery = '';
+  String _fmtDate(String ymd) {
+    // '2025-11-05' -> '5 Nov 2025'
+    try {
+      final d = DateTime.parse(ymd);
+      return DateFormat('d MMM yyyy').format(d);
+    } catch (_) {
+      return ymd;
+    }
+  }
 
   final List<Map<String, String>> bookings = [
     {
@@ -37,13 +49,41 @@ class _LecturerBookingHistoryListPageState
     },
   ];
 
+  late Future<List<Map<String, dynamic>>> _history;
+
+  @override
+  void initState() {
+    super.initState();
+    _history = _fetchHistory();
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchHistory() async {
+    // server ควรคืน fields: room_name, booking_date, start_time, end_time, borrower, approved_by, purpose, status, reason?
+    final rows = await api.get('/api/lecturer/history') as List<dynamic>;
+    return rows.cast<Map<String, dynamic>>();
+  }
+
+  String _dispStatus(String? s) {
+    switch ((s ?? '').toLowerCase()) {
+      case 'approved':
+      case 'reserved':
+        return 'Approved';
+      case 'rejected':
+      case 'cancelled':
+        return 'Rejected';
+      default:
+        return 'Approved';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final filtered = bookings.where((b) {
       final matchesFilter =
           selectedFilter == 'All' || b['status'] == selectedFilter;
-      final matchesSearch =
-          b['room']!.toLowerCase().contains(searchQuery.toLowerCase());
+      final matchesSearch = b['room']!.toLowerCase().contains(
+        searchQuery.toLowerCase(),
+      );
       return matchesFilter && matchesSearch;
     }).toList();
 
@@ -54,7 +94,11 @@ class _LecturerBookingHistoryListPageState
           title: const Text('Booking History'),
           actions: [
             IconButton(
-              icon: const Icon(Icons.account_circle, color: Colors.white, size: 32),
+              icon: const Icon(
+                Icons.account_circle,
+                color: Colors.white,
+                size: 32,
+              ),
               onPressed: () => showLecturerLogoutDialog(context),
             ),
           ],
@@ -70,7 +114,10 @@ class _LecturerBookingHistoryListPageState
                   prefixIcon: const Icon(Icons.search),
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 0,
+                    horizontal: 12,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -80,7 +127,6 @@ class _LecturerBookingHistoryListPageState
               ),
             ),
 
-            
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: Wrap(
@@ -90,10 +136,13 @@ class _LecturerBookingHistoryListPageState
                     ChoiceChip(
                       label: Text(status),
                       selected: selectedFilter == status,
-                      onSelected: (_) => setState(() => selectedFilter = status),
+                      onSelected: (_) =>
+                          setState(() => selectedFilter = status),
                       selectedColor: const Color(0xFF8B0000),
                       labelStyle: TextStyle(
-                        color: selectedFilter == status ? Colors.white : Colors.black,
+                        color: selectedFilter == status
+                            ? Colors.white
+                            : Colors.black,
                       ),
                     ),
                 ],
@@ -102,31 +151,89 @@ class _LecturerBookingHistoryListPageState
 
             // ----------booking list----------------
             Expanded(
-              child: filtered.isEmpty
-                  ? const Center(
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: _history,
+                builder: (_, snap) {
+                  if (snap.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snap.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error: ${snap.error}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
+                  final raw = snap.data ?? [];
+
+                  // map -> รูปแบบเดิมของ UI (room/date/time/status/…)
+                  final mapped = raw.map<Map<String, String>>((b) {
+                    final room = b['room_name'] as String? ?? '-';
+                    final dateRaw = b['booking_date'] as String? ?? '-';
+                    final date = _fmtDate(dateRaw); // ✅ ใช้รูปแบบ 5 Nov 2025
+                    final start =
+                        (b['start_time'] as String?)?.substring(0, 5) ??
+                        '--:--';
+                    final end =
+                        (b['end_time'] as String?)?.substring(0, 5) ?? '--:--';
+                    final borrower = b['borrower'] as String? ?? '-';
+                    final approver = b['approved_by'] as String? ?? '-';
+                    final obj = b['purpose'] as String? ?? '-';
+                    final reason = b['reason'] as String?;
+                    final status = _dispStatus(b['status'] as String?);
+
+                    return {
+                      'room': room,
+                      'date': date,
+                      'time': '$start-$end',
+                      'status': status,
+                      'borrower': borrower,
+                      'approvedBy': approver,
+                      'objective': obj,
+                      if (reason != null && reason.isNotEmpty) 'reason': reason,
+                    };
+                  }).toList();
+
+                  final filtered = mapped.where((b) {
+                    final okFilter =
+                        selectedFilter == 'All' ||
+                        b['status'] == selectedFilter;
+                    final okSearch = (b['room'] ?? '').toLowerCase().contains(
+                      searchQuery.toLowerCase(),
+                    );
+                    return okFilter && okSearch;
+                  }).toList();
+
+                  if (filtered.isEmpty) {
+                    return const Center(
                       child: Text(
                         'No booking history found.',
                         style: TextStyle(color: Colors.white70, fontSize: 16),
                       ),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.all(16),
-                      itemBuilder: (context, index) {
-                        final b = filtered[index];
-                        return GestureDetector(
+                    );
+                  }
+
+                  return ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemBuilder: (context, index) {
+                      final b = filtered[index];
+                      return GestureDetector(
+                        onTap: () => _showBookingPopup(context, b),
+                        child: LecturerHistoryLine(
+                          title: b['room']!,
+                          date: b['date']!,
+                          time: b['time']!,
+                          status: b['status']!,
                           onTap: () => _showBookingPopup(context, b),
-                          child: LecturerHistoryLine(
-                            title: b['room']!,
-                            date: b['date']!,
-                            time: b['time']!,
-                            status: b['status']!,
-                            onTap: () => _showBookingPopup(context, b),
-                          ),
-                        );
-                      },
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemCount: filtered.length,
-                    ),
+                        ),
+                      );
+                    },
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemCount: filtered.length,
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -135,8 +242,7 @@ class _LecturerBookingHistoryListPageState
     );
   }
 
-
-    void _showBookingPopup(BuildContext context, Map<String, String> booking) {
+  void _showBookingPopup(BuildContext context, Map<String, String> booking) {
     Color statusColor;
     switch (booking['status']) {
       case 'Approved':
@@ -220,26 +326,20 @@ class _LecturerBookingHistoryListPageState
     );
   }
 
- 
   Widget newLine(String label, String value) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: 100,
-              child: Text(
-                '$label:',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-            ),
-            Expanded(
-              child: Text(
-                value,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-          ],
+    padding: const EdgeInsets.symmetric(vertical: 2),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 100,
+          child: Text(
+            '$label:',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
         ),
-      );
+        Expanded(child: Text(value, style: const TextStyle(fontSize: 16))),
+      ],
+    ),
+  );
 }

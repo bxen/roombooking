@@ -1,11 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'lecturer_theme.dart';
 import 'lecturer_widgets.dart';
-import 'lecturer_request_detail_main_page.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../services/api_client.dart';
+import '../services/session.dart';
 
-class LecturerBookingRequestsListPage extends StatelessWidget {
+class LecturerBookingRequestsListPage extends StatefulWidget {
   const LecturerBookingRequestsListPage({super.key});
+
+  @override
+  State<LecturerBookingRequestsListPage> createState() =>
+      _LecturerBookingRequestsListPageState();
+}
+
+class _LecturerBookingRequestsListPageState
+    extends State<LecturerBookingRequestsListPage> {
+  late Future<List<Map<String, dynamic>>> _pending;
+
+  void _refreshNow() {
+    setState(() {
+      _pending = _fetchPending();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _pending = _fetchPending();
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchPending() async {
+    final data =
+        await api.get(
+              '/api/lecturer/requests',
+              query: {
+                '_': DateTime.now().millisecondsSinceEpoch,
+              }, // cache-buster
+            )
+            as List<dynamic>;
+    return data.cast<Map<String, dynamic>>();
+  }
+
+  Future<void> _approve(int id) async {
+    await api.post(
+      '/api/lecturer/requests/$id/approve',
+      body: {'user_id': Session.userId},
+    );
+    if (!mounted) return;
+    _refreshNow();
+  }
+
+  Future<void> _reject(int id, String reason) async {
+    await api.post(
+      '/api/lecturer/requests/$id/reject',
+      body: {'reason': reason, 'user_id': Session.userId},
+    );
+    if (!mounted) return;
+    _refreshNow();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,285 +65,258 @@ class LecturerBookingRequestsListPage extends StatelessWidget {
       data: LecturerTheme.theme(),
       child: Scaffold(
         appBar: AppBar(
-          // --- 1. AppBar Title ---
-          title: Text(
-            'Booking Requests',
-            style: GoogleFonts.alice(), // Applied font
-          ),
+          title: Text('Booking Requests', style: GoogleFonts.alice()),
           actions: [
             IconButton(
-              icon: const Icon(Icons.account_circle, color: Colors.white, size: 32),
+              icon: const Icon(
+                Icons.account_circle,
+                color: Colors.white,
+                size: 32,
+              ),
               onPressed: () => showLecturerLogoutDialog(context),
             ),
           ],
         ),
-        body: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // --Header ---
-            _buildSectionHeader(
-              'Pending',
-              Icons.hourglass_top_rounded,
-              Colors.orange.shade700,
-            ),
-            const SizedBox(height: 8),
+        body: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _pending,
+          builder: (_, snap) {
+            if (snap.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snap.hasError) {
+              return Center(
+                child: Text(
+                  'Error: ${snap.error}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              );
+            }
+            final list = snap.data ?? [];
+            if (list.isEmpty) {
+              return const Center(
+                child: Text(
+                  'No pending requests',
+                  style: TextStyle(color: Colors.white),
+                ),
+              );
+            }
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: list.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (_, i) {
+                final r = list[i];
+                final id = (r['booking_id'] as num).toInt();
+                final room = r['room_name'] as String;
+                final date = r['booking_date'] as String;
+                final start = (r['start_time'] as String).substring(0, 5);
+                final end = (r['end_time'] as String).substring(0, 5);
+                final borrower = r['borrower'] as String? ?? '-';
+                final purpose = r['purpose'] as String? ?? '-';
 
-            // Pending Card (with buttons)
-            LecturerRequestCard(
-              room: 'Room A307',
-              date: '20 Oct 2025',
-              time: '11:00-13:00',
-              borrower: 'ID: 65070001',
-              objective: 'Midterm practice',
-              actions: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _showApproveDialog(context, 'Room A307');
-                    },
-                    // --- 2. Button Text ---
-                    child: Text(
-                      'Approve',
-                      style: GoogleFonts.alice(fontWeight: FontWeight.bold), // Applied font
+                return LecturerRequestCard(
+                  room: room,
+                  date: date,
+                  time: '$start-$end',
+                  borrower: borrower,
+                  objective: purpose,
+                  actions: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () =>
+                            _confirmApprove(context, room, () => _approve(id)),
+                        child: Text(
+                          'Approve',
+                          style: GoogleFonts.alice(fontWeight: FontWeight.bold),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                    onPressed: () {
-                      _showRejectDialog(context, 'Room A307');
-                    },
-                    // --- 3. Button Text (Red) ---
-                    child: Text(
-                      'Reject',
-                      style: GoogleFonts.alice(fontWeight: FontWeight.bold, color: Colors.white), // Applied font
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                        onPressed: () => _confirmReject(
+                          context,
+                          room,
+                          (reason) => _reject(id, reason),
+                        ),
+                        child: Text(
+                          'Reject',
+                          style: GoogleFonts.alice(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            LecturerRequestCard(
-              room: 'Room C101',
-              date: '21 Oct 2025',
-              time: '09:00-10:00',
-              borrower: 'ID: 65070099',
-              objective: 'Lab review',
-              actions: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                       _showApproveDialog(context, 'Room C101');
-                    },
-                    // --- 4. Button Text ---
-                    child: Text(
-                      'Approve',
-                      style: GoogleFonts.alice(fontWeight: FontWeight.bold), // Applied font
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                     onPressed: () {
-                      _showRejectDialog(context, 'Room C101');
-                    },
-                    // --- 5. Button Text (Red) ---
-                    child: Text(
-                      'Reject',
-                      style: GoogleFonts.alice(fontWeight: FontWeight.bold, color: Colors.white), // Applied font
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-          ],
+                  ],
+                );
+              },
+            );
+          },
         ),
         bottomNavigationBar: lecturerBottomBar(context, 2),
       ),
     );
   }
 
-  // Widget for creating section headers (Already uses Alice)
-  Widget _buildSectionHeader(String title, IconData icon, Color color) {
-    return Row(
-      children: [
-        Icon(icon, color: color, size: 22),
-        const SizedBox(width: 8),
-        Text(
-          title,
-          style: GoogleFonts.alice(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Approve Popup (Already uses Alice for most text)
-  void _showApproveDialog(BuildContext context, String roomName) {
+  void _confirmApprove(
+    BuildContext context,
+    String room,
+    Future<void> Function() run,
+  ) {
     showDialog(
       context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
-          ),
-          title: Row(
-            children: [
-              Icon(Icons.check_circle_outline, color: Colors.green.shade700),
-              const SizedBox(width: 10),
-              Text(
-                'Confirm Approval',
-                style: GoogleFonts.alice(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          content: Text(
-            'Do you want to approve the booking request for $roomName?',
-            style: GoogleFonts.alice(fontSize: 16),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                'Cancel',
-                style: GoogleFonts.alice(color: Colors.grey.shade700),
-              ),
-              onPressed: () {
-                Navigator.of(dialogContext).pop(); 
-              },
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade700,
-              ),
-              child: Text(
-                'Approve',
-                style: GoogleFonts.alice(fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              onPressed: () {
-                Navigator.of(dialogContext).pop(); 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    backgroundColor: Colors.green.shade700,
-                    // --- 6. SnackBar Text ---
-                    content: Text(
-                      '$roomName has been approved!',
-                      style: GoogleFonts.alice(color: Colors.white), // Applied font
-                    ),
-                  ),
-                );
-                // TODO: Add actual approval logic
-              },
+      builder: (d) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.check_circle_outline, color: Colors.green.shade700),
+            const SizedBox(width: 10),
+            Text(
+              'Confirm Approval',
+              style: GoogleFonts.alice(fontWeight: FontWeight.bold),
             ),
           ],
-        );
-      },
+        ),
+        content: Text(
+          'Do you want to approve the booking request for $room?',
+          style: GoogleFonts.alice(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.alice(color: Colors.grey.shade700),
+            ),
+            onPressed: () => Navigator.pop(d),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade700,
+            ),
+            child: Text(
+              'Approve',
+              style: GoogleFonts.alice(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            onPressed: () async {
+              Navigator.pop(d);
+              await run(); // จะเรียก _approve ซึ่ง setState แล้ว
+              if (!mounted) return;
+              _refreshNow(); // ย้ำให้ FutureBuilder รับ future ใหม่
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: Colors.green.shade700,
+                  content: Text(
+                    '$room has been approved!',
+                    style: GoogleFonts.alice(color: Colors.white),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
-  // ----------REJECT POPUP (All text updated)--------------
-  void _showRejectDialog(BuildContext context, String roomName) {
-    final TextEditingController reasonController = TextEditingController();
-    String? errorText; 
-
+  void _confirmReject(
+    BuildContext context,
+    String room,
+    Future<void> Function(String reason) run,
+  ) {
+    final controller = TextEditingController();
+    String? errorText;
     showDialog(
       context: context,
-      builder: (BuildContext dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16.0),
-              ),
-              title: Row(
-                children: [
-                  Icon(Icons.cancel_outlined, color: Colors.red.shade700),
-                  const SizedBox(width: 10),
-                  Text(
-                    'Confirm Rejection',
-                    style: GoogleFonts.alice(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min, 
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Do you want to reject the booking request for $roomName?',
-                    style: GoogleFonts.alice(fontSize: 16),
-                  ),
-                  const SizedBox(height: 16),
-                  // --- 7. TextField Styles ---
-                  TextField(
-                    controller: reasonController,
-                    autofocus: true, 
-                    style: GoogleFonts.alice(), // Style for text being typed
-                    decoration: InputDecoration(
-                      labelText: 'Reason',
-                      labelStyle: GoogleFonts.alice(), // Applied font
-                      hintText: 'e.g., Room unavailable, Maintenance',
-                      hintStyle: GoogleFonts.alice(), // Applied font
-                      errorText: errorText, 
-                      errorStyle: GoogleFonts.alice(), // Applied font
-                      border: const OutlineInputBorder(),
-                    ),
-                  ),
-                ],
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: Text(
-                    'Cancel',
-                    style: GoogleFonts.alice(color: Colors.grey.shade700),
-                  ),
-                  onPressed: () {
-                    Navigator.of(dialogContext).pop(); 
-                  },
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red.shade700,
-                  ),
-                  child: Text(
-                    'Reject',
-                    style: GoogleFonts.alice(fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  onPressed: () {
-                    final String reason = reasonController.text;
-                    if (reason.trim().isEmpty) {
-                      setState(() {
-                        errorText = 'Please provide a reason';
-                      });
-                    } else {
-                      Navigator.of(dialogContext).pop(); 
-                      
-                      // --- 8. SnackBar Text ---
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          backgroundColor: Colors.red.shade700,
-                          content: Text(
-                            '$roomName rejected (Reason: $reason)',
-                            style: GoogleFonts.alice(color: Colors.white), // Applied font
-                          ),
-                        ),
-                      );
-                      // TODO: Add actual rejection logic
-                    }
-                  },
+      builder: (d) => StatefulBuilder(
+        builder: (c, setState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            title: Row(
+              children: [
+                Icon(Icons.cancel_outlined, color: Colors.red.shade700),
+                const SizedBox(width: 10),
+                Text(
+                  'Confirm Rejection',
+                  style: GoogleFonts.alice(fontWeight: FontWeight.bold),
                 ),
               ],
-            );
-          },
-        );
-      },
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Do you want to reject the booking request for $room?',
+                  style: GoogleFonts.alice(fontSize: 16),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: controller,
+                  autofocus: true,
+                  style: GoogleFonts.alice(color: Colors.black),
+                  decoration: InputDecoration(
+                    labelText: 'Reason',
+                    errorText: errorText,
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.alice(color: Colors.grey.shade700),
+                ),
+                onPressed: () => Navigator.pop(d),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.shade700,
+                ),
+                child: Text(
+                  'Reject',
+                  style: GoogleFonts.alice(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                onPressed: () async {
+                  final reason = controller.text.trim();
+                  if (reason.isEmpty) {
+                    setState(() => errorText = 'Please provide a reason');
+                    return;
+                  }
+                  Navigator.pop(d);
+                  await run(reason); // เรียก _reject
+                  if (!mounted) return;
+                  _refreshNow(); // รีเฟรชย้ำ
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: Colors.red.shade700,
+                      content: Text(
+                        '$room rejected (Reason: $reason)',
+                        style: GoogleFonts.alice(color: Colors.white),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
