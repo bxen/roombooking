@@ -188,13 +188,7 @@ class _LecturerBookingRequestsListPageState
           style: GoogleFonts.alice(fontSize: 16),
         ),
         actions: [
-          TextButton(
-            child: Text(
-              'Cancel',
-              style: GoogleFonts.alice(color: Colors.grey.shade700),
-            ),
-            onPressed: () => Navigator.pop(d),
-          ),
+          // เอา Approve มาไว้ซ้าย
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green.shade700,
@@ -208,9 +202,9 @@ class _LecturerBookingRequestsListPageState
             ),
             onPressed: () async {
               Navigator.pop(d);
-              await run(); // จะเรียก _approve ซึ่ง setState แล้ว
+              await run();
               if (!mounted) return;
-              _refreshNow(); // ย้ำให้ FutureBuilder รับ future ใหม่
+              _refreshNow();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   backgroundColor: Colors.green.shade700,
@@ -221,6 +215,14 @@ class _LecturerBookingRequestsListPageState
                 ),
               );
             },
+          ),
+          // แล้วค่อยปุ่ม Cancel ไว้ขวา
+          TextButton(
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.alice(color: Colors.grey.shade700),
+            ),
+            onPressed: () => Navigator.pop(d),
           ),
         ],
       ),
@@ -274,13 +276,7 @@ class _LecturerBookingRequestsListPageState
               ],
             ),
             actions: [
-              TextButton(
-                child: Text(
-                  'Cancel',
-                  style: GoogleFonts.alice(color: Colors.grey.shade700),
-                ),
-                onPressed: () => Navigator.pop(d),
-              ),
+              // เอา Reject มาไว้ซ้าย
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red.shade700,
@@ -299,9 +295,9 @@ class _LecturerBookingRequestsListPageState
                     return;
                   }
                   Navigator.pop(d);
-                  await run(reason); // เรียก _reject
+                  await run(reason);
                   if (!mounted) return;
-                  _refreshNow(); // รีเฟรชย้ำ
+                  _refreshNow();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       backgroundColor: Colors.red.shade700,
@@ -312,6 +308,14 @@ class _LecturerBookingRequestsListPageState
                     ),
                   );
                 },
+              ),
+              // แล้วค่อยปุ่ม Cancel ไว้ขวา
+              TextButton(
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.alice(color: Colors.grey.shade700),
+                ),
+                onPressed: () => Navigator.pop(d),
               ),
             ],
           );
