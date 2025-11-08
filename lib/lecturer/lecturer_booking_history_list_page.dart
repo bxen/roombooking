@@ -4,6 +4,7 @@ import 'lecturer_widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_client.dart';
 import 'package:intl/intl.dart';
+import '../services/session.dart';  // << เพิ่ม
 
 class LecturerBookingHistoryListPage extends StatefulWidget {
   const LecturerBookingHistoryListPage({super.key});
@@ -57,11 +58,14 @@ class _LecturerBookingHistoryListPageState
     _history = _fetchHistory();
   }
 
-  Future<List<Map<String, dynamic>>> _fetchHistory() async {
-    // server ควรคืน fields: room_name, booking_date, start_time, end_time, borrower, approved_by, purpose, status, reason?
-    final rows = await api.get('/api/lecturer/history') as List<dynamic>;
-    return rows.cast<Map<String, dynamic>>();
-  }
+ Future<List<Map<String, dynamic>>> _fetchHistory() async {
+  final rows = await api.get(
+    '/api/lecturer/history',
+    query: {'user_id': Session.userId}, // ต้องส่ง
+  ) as List<dynamic>;
+  return rows.cast<Map<String, dynamic>>();
+}
+
 
   String _dispStatus(String? s) {
     switch ((s ?? '').toLowerCase()) {
