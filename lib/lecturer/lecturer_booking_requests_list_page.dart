@@ -4,6 +4,7 @@ import 'lecturer_theme.dart';
 import 'lecturer_widgets.dart';
 import '../services/api_client.dart';
 import '../services/session.dart';
+import 'package:intl/intl.dart';
 
 class LecturerBookingRequestsListPage extends StatefulWidget {
   const LecturerBookingRequestsListPage({super.key});
@@ -57,6 +58,15 @@ class _LecturerBookingRequestsListPageState
     );
     if (!mounted) return;
     _refreshNow();
+  }
+
+   String formatDate(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      return DateFormat('dd MMM yyyy').format(date);
+    } catch (e) {
+      return dateString;
+    }
   }
 
   @override
@@ -116,7 +126,7 @@ class _LecturerBookingRequestsListPageState
 
                 return LecturerRequestCard(
                   room: room,
-                  date: date,
+                  date: formatDate(date),
                   time: '$start-$end',
                   borrower: borrower,
                   objective: purpose,
