@@ -16,15 +16,15 @@ class _StaffAssetListState extends State<StaffAssetList> {
   late Future<List<Map<String, dynamic>>> _rooms;
   final _date = DateFormat('yyyy-MM-dd').format(DateTime.now());
   static const _assetImages = <String>[
-  'images/roomA101.jpg',
-  'images/roomA102.jpg',
-  'images/roomB201.jpg',
-  'images/roomB202.jpg',
-  'images/roomC101.jpg',
-  'images/roomC102.jpg',
-  'images/roomC103.jpg',
-  'images/roomscreen.jpg',
-];
+    'images/roomA101.jpg',
+    'images/roomA102.jpg',
+    'images/roomB201.jpg',
+    'images/roomB202.jpg',
+    'images/roomC101.jpg',
+    'images/roomC102.jpg',
+    'images/roomC103.jpg',
+    'images/roomscreen.jpg',
+  ];
 
   @override
   void initState() {
@@ -536,6 +536,9 @@ class _StaffAssetListState extends State<StaffAssetList> {
     );
   }
 
+  //
+  // ===== ⬇️⬇️⬇️ นี่คือฟังก์ชัน _showDisableDialog ที่ถูกต้อง ⬇️⬇️⬇️ =====
+  //
   void _showDisableDialog(
     BuildContext context,
     int roomId,
@@ -579,28 +582,48 @@ class _StaffAssetListState extends State<StaffAssetList> {
               style: GoogleFonts.alice(color: Colors.black),
             ),
           ),
+
+          // ===== ✅ นี่คือปุ่ม 'Confirm' ที่ถูกต้อง =====
           ElevatedButton(
             onPressed: () async {
-              Navigator.pop(context);
-              onChanged();
-              try {
-                await api.patch(
-                  '/api/staff/rooms/$roomId',
-                  body: {'status': toDisable ? 'disabled' : 'free'},
-                );
+              Navigator.pop(context); // ปิด Dialog ก่อน
 
+              try {
+                // [!] จุดที่ 1: แยก Logic การเรียก API
+                if (toDisable) {
+                  // ถ้าจะ Disable: ให้เรียก Endpoint /disable ที่เราแก้ใน Server
+                  await api.patch('/api/staff/rooms/$roomId/disable');
+                } else {
+                  // ถ้าจะ Enable: ให้เรียก Endpoint ตัวเดิมเพื่อแก้ status
+                  await api.patch(
+                    '/api/staff/rooms/$roomId',
+                    body: {'status': 'free'},
+                  );
+                }
+
+                // ถ้าทำสำเร็จ (ไม่ติด Error) ค่อยแสดง Success และ Refresh
                 _showSuccessDialog(
                   context,
                   roomName,
                   toDisable ? 'disabled' : 'enabled',
                 );
-                await onChanged(); // รอให้หน้า list โหลดใหม่
+                await onChanged(); // Refresh หน้าจอ
               } catch (e) {
+                // [!] จุดที่ 2: เพิ่มการดักจับ Error 409
+                String msg = 'Failed: $e';
+                // [!] แก้ไขการดักจับ FormatException ด้วย
+                if (e.toString().contains('FormatException')) {
+                  msg = 'Failed: Server response is not valid JSON.';
+                } else if (toDisable && e.toString().contains('409')) {
+                  msg =
+                      'Cannot disable room: It has active or pending bookings.';
+                }
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     backgroundColor: Colors.red,
                     content: Text(
-                      'Failed: $e',
+                      msg,
                       style: GoogleFonts.alice(color: Colors.white),
                     ),
                   ),
@@ -616,10 +639,15 @@ class _StaffAssetListState extends State<StaffAssetList> {
               style: GoogleFonts.alice(color: Colors.white),
             ),
           ),
+
+          // ===== ✅ สิ้นสุดส่วนที่แก้ไข =====
         ],
       ),
     );
   }
+  //
+  // ===== ⬆️⬆️⬆️ สิ้นสุดฟังก์ชัน ⬆️⬆️⬆️ =====
+  //
 
   void _showSuccessDialog(
     BuildContext context,
