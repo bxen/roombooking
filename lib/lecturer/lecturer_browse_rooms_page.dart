@@ -52,7 +52,7 @@ class _LecturerBrowseRoomsPageState extends State<LecturerBrowseRoomsPage> {
                     c = Colors.red;
                     break;
                   case 'reserved':
-                    c = Colors.green;
+                    c = Colors.blue;
                     break; // โชว์เหมือน “Reserved” เป็นเขียวตาม UI เดิม
                   default:
                     c = Colors.green;
