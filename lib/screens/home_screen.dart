@@ -56,23 +56,17 @@ class HomeScreen extends StatelessWidget {
                           },
                           child: Text(
                             'Login',
-                            style: GoogleFonts.alice(color: Colors.black,fontSize: 18),
+                            style: GoogleFonts.alice(color: Colors.black,fontSize: 20,fontWeight: FontWeight.bold),
                           ),
                         ),
                         SizedBox(width: 15),
                         OutlinedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                          ),
                           onPressed: () {
                             Navigator.pushNamed(context, '/register');
                           },
                           child: Text(
                             'Sign up',
-                             style: GoogleFonts.alice(color: Colors.black,fontSize: 18),
+                             style: GoogleFonts.alice(color: Colors.white,fontSize: 20),
                           ),
                         ),
                       ],
