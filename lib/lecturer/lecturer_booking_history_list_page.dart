@@ -21,7 +21,7 @@ class _LecturerBookingHistoryListPageState
   String _fmtDate(String ymd) {
     // '2025-11-05' -> '5 Nov 2025'
     try {
-      final d = DateTime.parse(ymd);
+      final d = DateTime.parse(ymd).toLocal();
       return DateFormat('d MMM yyyy').format(d);
     } catch (_) {
       return ymd;
@@ -175,7 +175,7 @@ class _LecturerBookingHistoryListPageState
                   final mapped = raw.map<Map<String, String>>((b) {
                     final room = b['room_name'] as String? ?? '-';
                     final dateRaw = b['booking_date'] as String? ?? '-';
-                    final date = _fmtDate(dateRaw); // ✅ ใช้รูปแบบ 5 Nov 2025
+                    final date = _fmtDate(dateRaw); 
                     final start =
                         (b['start_time'] as String?)?.substring(0, 5) ??
                         '--:--';
