@@ -231,7 +231,7 @@ class _StaffAssetListState extends State<StaffAssetList> {
                         color = Colors.red;
                         break;
                       default:
-                        color = Colors.black;
+                        color = Colors.blue;
                     }
                     return Text(
                       '${slot['time']}  ${slot['status']}',
