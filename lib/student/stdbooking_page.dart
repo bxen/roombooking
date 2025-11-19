@@ -4,14 +4,14 @@ import 'package:intl/intl.dart';
 import 'package:roombooking/student/student_home.dart';
 import 'package:roombooking/student/widgets/student_navbar.dart';
 import 'package:roombooking/services/api_client.dart';
-import 'package:roombooking/services/session.dart';
+// import 'package:roombooking/services/session.dart'; // ❌ ไม่ใช้แล้ว
+
 class StdbookingPage extends StatefulWidget {
   final int roomId;
   final String roomName;
   final String roomStatus; // free|disabled
   final String? imagePath;
-  final List<Map<String, dynamic>>
-  timeSlots; // [{slot_id,start,end,status}, ...]
+  final List<Map<String, dynamic>> timeSlots; // [{slot_id,start,end,status}, ...]
   final bool userAlreadyBookedToday;
 
   const StdbookingPage({
@@ -50,14 +50,14 @@ class _StdbookingPageState extends State<StdbookingPage> {
     if (widget.roomStatus != 'free') return false;
     if (widget.userAlreadyBookedToday) return false;
     if (selectedSlot == null) return false;
+    if (selectedObjective == null || selectedObjective!.isEmpty) return false;
     return true;
   }
 
   @override
   Widget build(BuildContext context) {
-    final freeSlots = widget.timeSlots
-        .where((s) => s['status'] == 'free')
-        .toList();
+    final freeSlots =
+        widget.timeSlots.where((s) => s['status'] == 'free').toList();
 
     return Scaffold(
       body: SafeArea(
@@ -148,7 +148,6 @@ class _StdbookingPageState extends State<StdbookingPage> {
                                     setState(() => selectedObjective = value),
                               ),
                               const SizedBox(height: 20),
-
                               Text(
                                 'Time:',
                                 style: GoogleFonts.alice(
@@ -176,14 +175,10 @@ class _StdbookingPageState extends State<StdbookingPage> {
                                     setState(() => selectedSlot = value),
                               ),
                               const SizedBox(height: 30),
-
                               Center(
                                 child: ElevatedButton(
-                                  onPressed: !_canBook
-                                      ? null
-                                      : () {
-                                          _confirmBooking(context);
-                                        },
+                                  onPressed:
+                                      !_canBook ? null : () => _confirmBooking(context),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.black,
                                     shape: const StadiumBorder(),
@@ -285,7 +280,7 @@ class _StdbookingPageState extends State<StdbookingPage> {
                   await api.post(
                     '/api/bookings',
                     body: {
-                      'user_id': Session.userId,
+                      // 'user_id': Session.userId, // ❌ ไม่ต้องส่งแล้ว
                       'room_id': widget.roomId,
                       'slot_id': (selectedSlot!['slot_id'] as num).toInt(),
                       'date': _todayYMD(),
@@ -293,11 +288,10 @@ class _StdbookingPageState extends State<StdbookingPage> {
                     },
                   );
                   if (!mounted) return;
-                  // กลับไปหน้า Status (แท็บ 2) เพื่อเห็นรายการ pending
-                  final home = context
-                      .findAncestorStateOfType<StudentHomeState>();
+                  final home =
+                      context.findAncestorStateOfType<StudentHomeState>();
                   if (home != null) {
-                    home.changeTab(2);
+                    home.changeTab(2); // Status tab
                     Navigator.pop(context);
                   } else {
                     Navigator.pushReplacement(

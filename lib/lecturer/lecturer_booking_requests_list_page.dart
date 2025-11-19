@@ -31,44 +31,46 @@ class _LecturerBookingRequestsListPageState
   }
 
   Future<List<Map<String, dynamic>>> _fetchPending() async {
-    final data =
-        await api.get(
-              '/api/lecturer/requests',
-              query: {
-                '_': DateTime.now().millisecondsSinceEpoch,
-              }, // cache-buster
-            )
-            as List<dynamic>;
+    final data = await api.get(
+      '/api/lecturer/requests',
+      query: {
+        '_': DateTime.now().millisecondsSinceEpoch, // cache-buster
+      },
+    ) as List<dynamic>;
     return data.cast<Map<String, dynamic>>();
   }
 
+  // ✅ ใช้ session ที่ backend แทน ไม่ต้องส่ง user_id แล้ว
   Future<void> _approve(int id) async {
     await api.post(
       '/api/lecturer/requests/$id/approve',
-      body: {'user_id': Session.userId},
+      // body: ไม่จำเป็นต้องมีอะไร ถ้า api_client บังคับก็ส่ง {} แทน
+      body: const {},
     );
     if (!mounted) return;
     _refreshNow();
   }
 
+  // ✅ ส่งแค่ reason ก็พอแล้ว user ผูกจาก session ฝั่ง server
   Future<void> _reject(int id, String reason) async {
     await api.post(
       '/api/lecturer/requests/$id/reject',
-      body: {'reason': reason, 'user_id': Session.userId},
+      body: {
+        'reason': reason,
+      },
     );
     if (!mounted) return;
     _refreshNow();
   }
 
   String formatDate(String dateString) {
-  try {
-    final date = DateTime.parse(dateString).toLocal();
-    return DateFormat('dd MMM yyyy').format(date);
-  } catch (e) {
-    return dateString;
+    try {
+      final date = DateTime.parse(dateString).toLocal();
+      return DateFormat('dd MMM yyyy').format(date);
+    } catch (e) {
+      return dateString;
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -199,7 +201,6 @@ class _LecturerBookingRequestsListPageState
           style: GoogleFonts.alice(fontSize: 16),
         ),
         actions: [
-          // เอา Approve มาไว้ซ้าย
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green.shade700,
@@ -227,7 +228,6 @@ class _LecturerBookingRequestsListPageState
               );
             },
           ),
-          // แล้วค่อยปุ่ม Cancel ไว้ขวา
           TextButton(
             child: Text(
               'Cancel',
@@ -287,7 +287,6 @@ class _LecturerBookingRequestsListPageState
               ],
             ),
             actions: [
-              // เอา Reject มาไว้ซ้าย
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red.shade700,
@@ -320,7 +319,6 @@ class _LecturerBookingRequestsListPageState
                   );
                 },
               ),
-              // แล้วค่อยปุ่ม Cancel ไว้ขวา
               TextButton(
                 child: Text(
                   'Cancel',
