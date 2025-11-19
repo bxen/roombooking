@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:roombooking/student/widgets/student_navbar.dart';
 import 'package:roombooking/services/api_client.dart';
-import 'package:roombooking/services/session.dart';
+// import 'package:roombooking/services/session.dart'; // ❌ ไม่ใช้
 import 'package:intl/intl.dart';
-
 
 class StdhistoryPage extends StatefulWidget {
   const StdhistoryPage({super.key});
@@ -17,15 +16,13 @@ class _StdhistoryPageState extends State<StdhistoryPage> {
   late Future<List<Map<String, dynamic>>> _history;
 
   String _fmtDate(String ymd) {
-  try {
-    final d = DateTime.parse(ymd);
-    return DateFormat('d MMM yyyy').format(d);
-  } catch (_) {
-    return ymd;
+    try {
+      final d = DateTime.parse(ymd);
+      return DateFormat('d MMM yyyy').format(d);
+    } catch (_) {
+      return ymd;
+    }
   }
-}
-
-
 
   @override
   void initState() {
@@ -34,15 +31,13 @@ class _StdhistoryPageState extends State<StdhistoryPage> {
   }
 
   Future<List<Map<String, dynamic>>> _fetchHistory() async {
-    final res =
-        await api.get(
-              '/api/student/bookings',
-              query: {
-                'scope': 'history',
-                'user_id': Session.userId, // << ส่ง user_id
-              },
-            )
-            as List<dynamic>;
+    final res = await api.get(
+      '/api/student/bookings',
+      query: {
+        'scope': 'history',
+        // 'user_id': Session.userId, // ❌ ไม่ต้องส่งแล้ว
+      },
+    ) as List<dynamic>;
     return res.cast<Map<String, dynamic>>();
   }
 
@@ -91,11 +86,11 @@ class _StdhistoryPageState extends State<StdhistoryPage> {
                     itemCount: list.length,
                     itemBuilder: (_, i) {
                       final b = list[i];
-                      final status = (b['status'] as String)
-                          .toLowerCase(); // approved|rejected|reserved|cancelled|completed
+                      final status = (b['status'] as String).toLowerCase();
                       final room = b['room_name'] as String;
                       final date = _fmtDate(b['booking_date'] as String);
-                      final start = (b['start_time'] as String).substring(0, 5);
+                      final start =
+                          (b['start_time'] as String).substring(0, 5);
                       final end = (b['end_time'] as String).substring(0, 5);
                       final borrower = b['borrower'] as String? ?? '-';
                       final approver = b['approver'] as String? ?? '-';
